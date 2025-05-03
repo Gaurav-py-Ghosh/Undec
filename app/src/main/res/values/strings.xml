@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">HackedApp</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="sign_in">Sign in</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="background_image">Background Image</string>
+    <string name="login_background">Login Background</string>
+    <string name="signup_background">Signup Background</string>
+</resources>
