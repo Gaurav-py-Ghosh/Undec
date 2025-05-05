@@ -13,18 +13,26 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import android.widget.Button;
 
-public class TasksActivity extends AppCompatActivity {
+public class TasksActivity extends BaseActivity {
     // Views
     private RecyclerView recyclerView;
     private FloatingActionButton addTaskButton;
@@ -34,7 +42,7 @@ public class TasksActivity extends AppCompatActivity {
 
     // Data
     private final List<Task> tasks = new ArrayList<>();
-    private final StreakManager streakManager = new StreakManager(this);
+    private StreakManager streakManager;
     private String currentDate;
     private TaskAdapter taskAdapter;
 
@@ -56,14 +64,17 @@ public class TasksActivity extends AppCompatActivity {
             setContentView(R.layout.activity_tasks);
             Log.d(TAG, "TasksActivity onCreate started");
 
+            // Initialize StreakManager here after context is available
+            streakManager = new StreakManager(this);
+
             if (!initializeViews()) {
                 Log.e(TAG, "Failed to initialize views - aborting initialization");
-                Toast.makeText(this, "Error loading tasks screen. Some UI elements are missing.", Toast.LENGTH_LONG).show();
+                showMessage("Error loading tasks screen. Some UI elements are missing.");
                 return;
             }
 
             setupCurrentDate();
-            setupBottomNavigation();
+            setupBottomNavigation(R.id.nav_tasks);
             loadTasks();
             setupAddTaskButton();
             updateStreakCalendar();
@@ -71,8 +82,13 @@ public class TasksActivity extends AppCompatActivity {
             Log.d(TAG, "TasksActivity onCreate completed successfully");
         } catch (Exception e) {
             Log.e(TAG, "Error in TasksActivity onCreate: " + e.getMessage(), e);
-            Toast.makeText(this, "Error initializing tasks screen: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            showMessage("Error initializing tasks screen: " + e.getMessage());
         }
+    }
+
+    @Override
+    protected int getNavigationMenuItemId() {
+        return R.id.nav_tasks;
     }
 
     private boolean initializeViews() {
@@ -157,15 +173,46 @@ public class TasksActivity extends AppCompatActivity {
 
     private void updateStreakCalendar() {
         try {
-            // Sample data - replace with your actual implementation
-            List<Integer> completedDays = new ArrayList<>();
-            completedDays.add(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+            // Get completed days from StreakManager
+            List<Integer> completedDays = streakManager.getCurrentMonthCompletedDays();
             calendarView.setCompletedDays(completedDays);
-            calendarView.setStreakCount(1); // Sample streak count
+            calendarView.setStreakCount(streakManager.getCurrentStreak());
             Log.d(TAG, "Streak calendar updated");
         } catch (Exception e) {
             Log.e(TAG, "Error updating streak calendar: " + e.getMessage(), e);
         }
+    }
+
+    private void updateTaskCompletion(Task task, boolean isCompleted) {
+        task.setCompleted(isCompleted);
+        
+        // Check if all tasks for today are completed
+        if (areAllTasksForTodayCompleted()) {
+            // Mark today as complete in streak
+            streakManager.markDateComplete(currentDate);
+            showMessage("🔥 All tasks completed for today!");
+        } else {
+            // Mark today as incomplete in streak
+            streakManager.markDateIncomplete(currentDate);
+        }
+        
+        // Update the streak calendar
+        updateStreakCalendar();
+    }
+
+    private boolean areAllTasksForTodayCompleted() {
+        if (tasks.isEmpty()) return false;
+        
+        boolean hasTodayTasks = false;
+        for (Task task : tasks) {
+            if (task.getDate().equals(currentDate)) {
+                hasTodayTasks = true;
+                if (!task.isCompleted()) {
+                    return false;
+                }
+            }
+        }
+        return hasTodayTasks;
     }
 
     private boolean areAllTasksCompleted() {
@@ -180,86 +227,69 @@ public class TasksActivity extends AppCompatActivity {
 
     private void setupAddTaskButton() {
         try {
-            addTaskButton.setOnClickListener(v -> {
-                // Replace with your actual task creation activity
-                Toast.makeText(this, "Add task functionality", Toast.LENGTH_SHORT).show();
-            });
+            addTaskButton.setOnClickListener(v -> showAddTaskDialog());
             Log.d(TAG, "Add task button set up");
         } catch (Exception e) {
             Log.e(TAG, "Error setting up add task button: " + e.getMessage(), e);
         }
     }
 
-    private void setupBottomNavigation() {
-        try {
-            if (bottomNavigation == null) {
-                Log.e(TAG, "bottomNavigation is null in setupBottomNavigation");
-                Toast.makeText(this, "Navigation not available", Toast.LENGTH_SHORT).show();
-                return;
-            }
+    private void showAddTaskDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_task, null);
+        
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+            .setTitle("Add New Task")
+            .setView(dialogView)
+            .setPositiveButton("Add", null)
+            .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
-            // Set the correct index first
-            bottomNavigation.setSelectedIndex(1); // Tasks is at index 1
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            EditText taskTitleInput = dialogView.findViewById(R.id.taskTitleInput);
+            Spinner prioritySpinner = dialogView.findViewById(R.id.prioritySpinner);
+            DatePicker datePicker = dialogView.findViewById(R.id.datePicker);
 
-            bottomNavigation.setOnNavItemSelected(index -> {
-                Log.d(TAG, "Navigation item selected: " + index);
+            // Set up priority spinner
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                    R.array.priority_levels, R.layout.item_priority_spinner);
+            adapter.setDropDownViewResource(R.layout.item_priority_spinner_dropdown);
+            prioritySpinner.setAdapter(adapter);
 
-                if (index == bottomNavigation.getSelectedIndex()) {
-                    Log.d(TAG, "Already on this tab (index " + index + ")");
+            positiveButton.setOnClickListener(v -> {
+                String taskTitle = taskTitleInput.getText().toString().trim();
+                if (taskTitle.isEmpty()) {
+                    taskTitleInput.setError("Task title is required");
                     return;
                 }
 
-                Intent intent = null;
-                switch (index) {
-                    case 0:
-                        Log.d(TAG, "Home tab selected");
-                        intent = new Intent(this, HomeActivity.class);
-                        break;
-                    case 1:
-                        Log.d(TAG, "Tasks tab selected, already here");
-                        return; // Already on tasks screen
-                    case 2:
-                        Log.d(TAG, "Notes tab selected");
-                        intent = new Intent(this, NotesActivity.class);
-                        break;
-                    case 3:
-                        Log.d(TAG, "Profile tab selected");
-                        intent = new Intent(this, ProfileActivity.class);
-                        break;
-                    case 4:
-                        Log.d(TAG, "Settings tab selected");
-                        intent = new Intent(this, SettingsActivity.class);
-                        break;
+                String priority = prioritySpinner.getSelectedItem().toString().toLowerCase();
+                
+                // Get selected date
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                String taskDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        .format(calendar.getTime());
+
+                // Create and add the new task
+                Task newTask = new Task(taskTitle, false, priority, taskDate);
+                tasks.add(newTask);
+                taskAdapter.notifyItemInserted(tasks.size() - 1);
+
+                // Update streak if task is for today
+                if (taskDate.equals(currentDate)) {
+                    updateTaskCompletion(newTask, false);
                 }
 
-                if (intent != null) {
-                    try {
-                        Log.d(TAG, "Starting activity for tab index: " + index);
-                        // Clear the back stack and start fresh
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                        // Don't finish this activity to allow back navigation
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error navigating to activity: " + e.getMessage(), e);
-                        Toast.makeText(this, "Navigation error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
+                showMessage("Task added successfully");
+                dialog.dismiss();
             });
-            Log.d(TAG, "Bottom navigation set up successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up bottom navigation: " + e.getMessage(), e);
-            Toast.makeText(this, "Error setting up navigation: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
+        });
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updateStreakCalendar();
-        if (bottomNavigation != null) {
-            bottomNavigation.setSelectedIndex(1);
-        }
+        dialog.show();
+
+        // Style the dialog
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
     }
 
     // Task adapter implementation
@@ -322,14 +352,7 @@ public class TasksActivity extends AppCompatActivity {
 
             // Handle task completion
             holder.taskCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                task.completed = isChecked;
-
-                // Only update streak calendar if ALL tasks for TODAY are completed
-                if (isChecked && areAllTasksForTodayCompleted()) {
-                    updateStreakCalendar();
-                    Toast.makeText(TasksActivity.this, "All of today's tasks completed!", Toast.LENGTH_SHORT).show();
-                }
-                // If unchecking a task, don't update the streak calendar
+                updateTaskCompletion(task, isChecked);
             });
         }
 
@@ -344,36 +367,15 @@ public class TasksActivity extends AppCompatActivity {
         TextView taskTitle;
         TextView taskTime;
         View priority;
-        RadioButton taskCheckbox;
+        MaterialCheckBox taskCheckbox;
 
-        public TaskViewHolder(View itemView) {
+        public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
             taskTitle = itemView.findViewById(R.id.taskTitle);
             taskTime = itemView.findViewById(R.id.taskTime);
-            priority = itemView.findViewById(R.id.statusIndicator);
-            taskCheckbox = itemView.findViewById(R.id.taskRadio);
+            priority = itemView.findViewById(R.id.priorityIndicator);
+            taskCheckbox = itemView.findViewById(R.id.taskCheckbox);
         }
-    }
-
-    // Add helper method to check if all of today's tasks are completed
-    private boolean areAllTasksForTodayCompleted() {
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                .format(Calendar.getInstance().getTime());
-
-        boolean hasTodayTasks = false;
-
-        for (Task task : tasks) {
-            // Only consider tasks scheduled for today
-            if (today.equals(task.date)) {
-                hasTodayTasks = true;
-                if (!task.completed) {
-                    return false;
-                }
-            }
-        }
-
-        // Only return true if there are tasks for today and all are completed
-        return hasTodayTasks;
     }
 
     // Task class definition using full Task properties
@@ -401,6 +403,14 @@ public class TasksActivity extends AppCompatActivity {
 
         public boolean isCompleted() {
             return completed;
+        }
+
+        public void setCompleted(boolean completed) {
+            this.completed = completed;
+        }
+
+        public String getDate() {
+            return date;
         }
     }
 }

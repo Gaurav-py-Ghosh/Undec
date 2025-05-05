@@ -1,46 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="@color/darker_gray"
-    android:layout_marginBottom="8dp">
-
-    <View
-        android:id="@+id/statusIndicator"
-        android:layout_width="8dp"
-        android:layout_height="match_parent"
-        android:background="#FF9800" />
-
-    <RadioButton
-        android:id="@+id/taskRadio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp" />
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/card_background"
+    app:strokeWidth="1dp"
+    app:strokeColor="#33FFFFFF">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="8dp">
+        android:orientation="horizontal"
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/taskTitle"
-            android:layout_width="match_parent"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/taskCheckbox"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@color/background" />
+            android:layout_gravity="center_vertical"
+            app:buttonTint="@color/colorAccent" />
 
-        <TextView
-            android:id="@+id/taskTime"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/background"
-            android:alpha="0.7" />
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/taskTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:id="@+id/taskTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/priorityIndicator"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:background="@color/priority_medium" />
 
     </LinearLayout>
 
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

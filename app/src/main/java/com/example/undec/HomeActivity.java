@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -18,8 +19,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,7 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private TaskManager taskManager;
     private List<Task> todayTasks;
@@ -46,6 +52,11 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "HomeActivity onCreate started");
 
         try {
+            // Setup toolbar
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+
             // Initialize TaskManager
             taskManager = new TaskManager(this);
     
@@ -53,6 +64,12 @@ public class HomeActivity extends AppCompatActivity {
             streakCalendarView = findViewById(R.id.streakCalendarView);
             RecyclerView todoRecyclerView = findViewById(R.id.todoRecyclerView);
             RecyclerView notesRecyclerView = findViewById(R.id.notesRecyclerView);
+            BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
+            FloatingActionButton fabAddTask = findViewById(R.id.fabAddTask);
+    
+            // Setup bottom navigation
+            bottomNav.setOnNavigationItemSelectedListener(this);
+            bottomNav.setSelectedItemId(R.id.nav_home);
     
             // Load today's tasks
             todayTasks = taskManager.getTodayTasks();
@@ -107,17 +124,8 @@ public class HomeActivity extends AppCompatActivity {
             setupNotesSection(notesRecyclerView);
     
             // Setup add task button
-            findViewById(R.id.fabAddTask).setOnClickListener(v -> showAddTaskDialog());
+            fabAddTask.setOnClickListener(v -> showAddTaskDialog());
             
-            // Setup add note button
-            findViewById(R.id.fabAddNote).setOnClickListener(v -> {
-                Toast.makeText(this, "Adding a new note", Toast.LENGTH_SHORT).show();
-                // In a real app, you would open a note editor
-            });
-            
-            // Setup navigation buttons
-            setupNavigationButtons();
-    
             // Initialize streak display
             checkAndMarkStreak();
             Log.d(TAG, "HomeActivity setup complete");
@@ -125,6 +133,27 @@ public class HomeActivity extends AppCompatActivity {
             Log.e(TAG, "Error initializing HomeActivity: " + e.getMessage(), e);
             Toast.makeText(this, "Error loading app: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        
+        if (itemId == R.id.nav_home) {
+            // Already on home, do nothing
+            return true;
+        } else if (itemId == R.id.nav_tasks) {
+            startActivity(new Intent(this, TasksActivity.class));
+            return true;
+        } else if (itemId == R.id.nav_notes) {
+            startActivity(new Intent(this, NotesActivity.class));
+            return true;
+        } else if (itemId == R.id.nav_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
+            return true;
+        }
+        
+        return false;
     }
     
     private void setupNotesSection(RecyclerView notesRecyclerView) {
@@ -362,50 +391,6 @@ public class HomeActivity extends AppCompatActivity {
         checkAndMarkStreak();
     }
 
-    private void setupNavigationButtons() {
-        // Setup Profile button
-        findViewById(R.id.btnViewProfile).setOnClickListener(v -> {
-            Log.d(TAG, "Opening Profile page");
-            try {
-                Intent intent = new Intent(this, ProfileActivity.class);
-                // Get streak count to pass to profile
-                int streakCount = 0;
-                if (streakCalendarView != null) {
-                    streakCount = streakCalendarView.getStreakCount();
-                }
-                intent.putExtra("streakCount", streakCount);
-                startActivity(intent);
-            } catch (Exception e) {
-                Log.e(TAG, "Error navigating to Profile: " + e.getMessage(), e);
-                Toast.makeText(this, "Could not open Profile", Toast.LENGTH_SHORT).show();
-            }
-        });
-        
-        // Setup View All Notes button
-        findViewById(R.id.btnViewAllNotes).setOnClickListener(v -> {
-            Log.d(TAG, "Opening Notes page");
-            try {
-                Intent intent = new Intent(this, NotesActivity.class);
-                startActivity(intent);
-            } catch (Exception e) {
-                Log.e(TAG, "Error navigating to Notes: " + e.getMessage(), e);
-                Toast.makeText(this, "Could not open Notes", Toast.LENGTH_SHORT).show();
-            }
-        });
-        
-        // Setup Tasks button
-        findViewById(R.id.btnViewTasks).setOnClickListener(v -> {
-            Log.d(TAG, "Opening Tasks page");
-            try {
-                Intent intent = new Intent(this, TasksActivity.class);
-                startActivity(intent);
-            } catch (Exception e) {
-                Log.e(TAG, "Error navigating to Tasks: " + e.getMessage(), e);
-                Toast.makeText(this, "Could not open Tasks", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     // Note Adapter for the home screen notes
     static class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
         private final List<Note> notes;
@@ -448,19 +433,19 @@ public class HomeActivity extends AppCompatActivity {
         static class NoteViewHolder extends RecyclerView.ViewHolder {
             private final TextView titleTextView;
             private final TextView categoryTextView;
-            private final ImageView noteImageView;
+            private final TextView contentTextView;
 
             NoteViewHolder(@NonNull View itemView) {
                 super(itemView);
                 titleTextView = itemView.findViewById(R.id.noteTitle);
                 categoryTextView = itemView.findViewById(R.id.noteCategory);
-                noteImageView = itemView.findViewById(R.id.noteImage);
+                contentTextView = itemView.findViewById(R.id.noteContent);
             }
 
             void bind(Note note) {
                 titleTextView.setText(note.getTitle());
                 categoryTextView.setText(note.getCategory());
-                noteImageView.setImageResource(note.getImageResId());
+                contentTextView.setText(note.getContent());
             }
         }
     }
@@ -501,7 +486,7 @@ public class HomeActivity extends AppCompatActivity {
             private final TextView taskTitle;
             private final TextView taskTime;
             private final View priority;
-            private final RadioButton taskCheckbox;
+            private final MaterialCheckBox taskCheckbox;
             private final OnTaskClickListener listener;
 
             public TaskViewHolder(View itemView, OnTaskClickListener listener) {
@@ -509,8 +494,8 @@ public class HomeActivity extends AppCompatActivity {
                 this.listener = listener;
                 taskTitle = itemView.findViewById(R.id.taskTitle);
                 taskTime = itemView.findViewById(R.id.taskTime);
-                priority = itemView.findViewById(R.id.statusIndicator);
-                taskCheckbox = itemView.findViewById(R.id.taskRadio);
+                priority = itemView.findViewById(R.id.priorityIndicator);
+                taskCheckbox = itemView.findViewById(R.id.taskCheckbox);
 
                 itemView.setOnClickListener(v -> {
                     int position = getAdapterPosition();
@@ -525,16 +510,18 @@ public class HomeActivity extends AppCompatActivity {
                 taskCheckbox.setChecked(task.isCompleted());
                 taskTime.setText(task.getFormattedDate());
 
+                int priorityColor;
                 switch (task.getPriority().toLowerCase()) {
                     case "high":
-                        priority.setBackgroundColor(Color.RED);
+                        priorityColor = itemView.getContext().getResources().getColor(R.color.priority_high);
                         break;
                     case "medium":
-                        priority.setBackgroundColor(Color.YELLOW);
+                        priorityColor = itemView.getContext().getResources().getColor(R.color.priority_medium);
                         break;
                     default:
-                        priority.setBackgroundColor(Color.GREEN);
+                        priorityColor = itemView.getContext().getResources().getColor(R.color.priority_low);
                 }
+                priority.setBackgroundColor(priorityColor);
             }
         }
     }

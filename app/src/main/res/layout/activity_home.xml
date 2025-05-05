@@ -1,17 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/background"
     tools:context=".HomeActivity">
 
-    <!-- Content Area -->
-    <ScrollView
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            app:title="Today"
+            app:titleTextColor="@color/text_primary"
+            app:titleTextAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,128 +36,81 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Header -->
+            <!-- Tasks Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Your Tasks"
-                android:textColor="@color/background"
-                android:textSize="24sp" />
+                android:layout_marginBottom="8dp"
+                android:text="Tasks"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            <!-- Tasks List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/todoRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 android:nestedScrollingEnabled="false" />
 
-            <!-- Notes Title and View All Button -->
-            <LinearLayout
+            <!-- Notes Section -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:text="Recent Notes"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Your Notes"
-                    android:textColor="@color/background"
-                    android:textSize="18sp" />
-
-                <Button
-                    android:id="@+id/btnViewAllNotes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View All"
-                    android:textSize="12sp"
-                    android:backgroundTint="@color/colorAccent"
-                    android:padding="8dp"
-                    android:minHeight="36dp" />
-            </LinearLayout>
-
-            <!-- Notes Horizontal List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/notesRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:layout_marginBottom="16dp"
+                android:layout_height="180dp"
+                android:layout_marginBottom="24dp"
                 android:clipToPadding="false"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp" />
 
-            <!-- Streak Calendar Title -->
+            <!-- Streak Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
-                android:text="Your Streak Calendar"
-                android:textColor="@color/background"
-                android:textSize="18sp" />
+                android:text="Your Streak"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            <!-- Streak Calendar -->
             <com.example.undec.StreakCalendarView
                 android:id="@+id/streakCalendarView"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="280dp"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- Navigation Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="24dp"
-                android:gravity="center">
-
-                <Button
-                    android:id="@+id/btnViewProfile"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="View Profile"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:layout_marginEnd="8dp"/>
-
-                <Button
-                    android:id="@+id/btnViewTasks"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="All Tasks"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- Add Task FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddTask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_add"/>
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Add Task"
+        app:backgroundTint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_add" />
 
-    <!-- Add Note FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddNote"
-        android:layout_width="wrap_content"
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@id/fabAddTask"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/colorAccent"
-        android:src="@drawable/ic_add"/>
+        android:layout_gravity="bottom"
+        android:background="@color/surface"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:menu="@menu/nav_menu" />
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

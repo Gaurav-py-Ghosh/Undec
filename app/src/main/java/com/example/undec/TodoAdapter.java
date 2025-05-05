@@ -55,8 +55,8 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TaskViewHolder
             super(itemView);
             taskTitle = itemView.findViewById(R.id.taskTitle);
             taskTime = itemView.findViewById(R.id.taskTime);
-            priority = itemView.findViewById(R.id.statusIndicator);
-            taskCheckbox = itemView.findViewById(R.id.taskRadio);
+            priority = itemView.findViewById(R.id.priorityIndicator);
+            taskCheckbox = itemView.findViewById(R.id.taskCheckbox);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
