@@ -19,14 +19,30 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".HomeActivity" />
-        <activity android:name=".TasksActivity"/>
-        <activity android:name=".NotesActivity"/>
-        <activity android:name=".ProfileActivity"/>
-        <activity android:name=".SettingsActivity"/>
-        <activity android:name=".EventsActivity"/>
+        <activity 
+            android:name=".LoginActivity"
+            android:launchMode="singleTop" />
+        <activity 
+            android:name=".SignUpActivity"
+            android:launchMode="singleTop" />
+        <activity 
+            android:name=".HomeActivity"
+            android:launchMode="singleTop" />
+        <activity 
+            android:name=".TasksActivity"
+            android:launchMode="singleTop" />
+        <activity 
+            android:name=".NotesActivity"
+            android:launchMode="singleTop" />
+        <activity 
+            android:name=".ProfileActivity"
+            android:launchMode="singleTop" />
+        <activity 
+            android:name=".SettingsActivity"
+            android:launchMode="singleTop" />
+        <activity 
+            android:name=".EventsActivity"
+            android:launchMode="singleTop" />
     </application>
 
 </manifest>

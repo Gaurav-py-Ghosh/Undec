@@ -64,6 +64,9 @@ public class TasksActivity extends BaseActivity {
             setContentView(R.layout.activity_tasks);
             Log.d(TAG, "TasksActivity onCreate started");
 
+            // Initialize bottom navigation first
+            setupBottomNavigation(R.id.nav_tasks);
+            
             // Initialize StreakManager here after context is available
             streakManager = new StreakManager(this);
 
@@ -74,7 +77,6 @@ public class TasksActivity extends BaseActivity {
             }
 
             setupCurrentDate();
-            setupBottomNavigation(R.id.nav_tasks);
             loadTasks();
             setupAddTaskButton();
             updateStreakCalendar();

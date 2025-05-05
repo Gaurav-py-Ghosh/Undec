@@ -44,78 +44,90 @@ public class HomeActivity extends BaseActivity {
     private StreakCalendarView streakCalendarView;
     private static final String TAG = "HomeActivity";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-
-        // Initialize views
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-        }
-
-        taskManager = new TaskManager(this);
-        streakCalendarView = findViewById(R.id.streakCalendarView);
-        RecyclerView todoRecyclerView = findViewById(R.id.todoRecyclerView);
-        RecyclerView notesRecyclerView = findViewById(R.id.notesRecyclerView);
-        
-        // Setup bottom navigation
-        setupBottomNavigation(R.id.nav_home);
-        
-        // Setup Events FAB
-        findViewById(R.id.fabEvents).setOnClickListener(v -> {
-            try {
-                Intent intent = new Intent(this, EventsActivity.class);
-                startActivity(intent);
-            } catch (Exception e) {
-                Log.e(TAG, "Error launching EventsActivity", e);
-                Toast.makeText(this, "Events feature coming soon", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Load today's tasks
-        todayTasks = taskManager.getTodayTasks();
-        if (todayTasks.isEmpty()) {
-            String today = getCurrentDate();
-            todayTasks.add(new Task("Complete assignment", false, "low", today));
-            todayTasks.add(new Task("Study for exam", false, "high", today));
-            todayTasks.add(new Task("Submit homework", false, "medium", today));
-            for (Task task : todayTasks) {
-                taskManager.addTask(task);
-            }
-        }
-
-        // Setup tasks RecyclerView
-        todoAdapter = new TodoAdapter(todayTasks, position -> {
-            Task task = todayTasks.get(position);
-            task.setCompleted(!task.isCompleted());
-            taskManager.updateTask(position, task);
-            todoAdapter.notifyItemChanged(position);
-            checkAndMarkStreak();
-
-            Toast.makeText(this, task.isCompleted() ?
-                    "Task completed" : "Task incomplete", Toast.LENGTH_SHORT).show();
-        });
-
-        todoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        todoRecyclerView.setAdapter(todoAdapter);
-
-        // Setup notes section
-        setupNotesSection(notesRecyclerView);
-
-        // Setup navigation
-        setupSeeMoreButtons();
-        setupTabLayout();
-
-        // Initialize streak
-        checkAndMarkStreak();
-    }
     
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_home;
+    }
+
     @Override
     protected int getNavigationMenuItemId() {
         return R.id.nav_home;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        try {
+            // Initialize bottom navigation first to avoid crashes
+            setupBottomNavigation(R.id.nav_home);
+            
+            // Initialize views
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
+
+            taskManager = new TaskManager(this);
+            streakCalendarView = findViewById(R.id.streakCalendarView);
+            RecyclerView todoRecyclerView = findViewById(R.id.todoRecyclerView);
+            RecyclerView notesRecyclerView = findViewById(R.id.notesRecyclerView);
+
+            // Setup Events FAB
+            findViewById(R.id.fabEvents).setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(this, EventsActivity.class);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error launching EventsActivity", e);
+                    Toast.makeText(this, "Events feature coming soon", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            // Load today's tasks
+            todayTasks = taskManager.getTodayTasks();
+            if (todayTasks.isEmpty()) {
+                String today = getCurrentDate();
+                todayTasks.add(new Task("Complete assignment", false, "low", today));
+                todayTasks.add(new Task("Study for exam", false, "high", today));
+                todayTasks.add(new Task("Submit homework", false, "medium", today));
+                for (Task task : todayTasks) {
+                    taskManager.addTask(task);
+                }
+            }
+
+            // Setup tasks RecyclerView
+            todoAdapter = new TodoAdapter(todayTasks, position -> {
+                Task task = todayTasks.get(position);
+                task.setCompleted(!task.isCompleted());
+                taskManager.updateTask(position, task);
+                todoAdapter.notifyItemChanged(position);
+                checkAndMarkStreak();
+
+                Toast.makeText(this, task.isCompleted() ?
+                        "Task completed" : "Task incomplete", Toast.LENGTH_SHORT).show();
+            });
+
+            todoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            todoRecyclerView.setAdapter(todoAdapter);
+
+            // Setup notes section
+            setupNotesSection(notesRecyclerView);
+
+            // Setup navigation
+            setupSeeMoreButtons();
+            setupTabLayout();
+
+            // Initialize streak
+            checkAndMarkStreak();
+
+            Log.d(TAG, "HomeActivity setup complete");
+        } catch (Exception e) {
+            Log.e(TAG, "Error in HomeActivity: " + e.getMessage(), e);
+            Toast.makeText(this, "Error loading home screen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -203,7 +215,7 @@ public class HomeActivity extends BaseActivity {
             intent.putExtra("streakCount", streakCalendarView.getStreakCount());
             startActivity(intent);
         });
-        
+
         // Events "See more"
         findViewById(R.id.seeMoreEvents).setOnClickListener(v -> {
             navigateToEventsActivity();
@@ -217,19 +229,17 @@ public class HomeActivity extends BaseActivity {
         findViewById(R.id.upcomingEventCard).setOnClickListener(v -> {
             navigateToEventsActivity();
         });
-        
+
         // Event Card Navigation
         findViewById(R.id.eventCardNavigation).setOnClickListener(v -> {
             navigateToEventsActivity();
         });
     }
-    
-    // Helper method to navigate to EventsActivity
+
     private void navigateToEventsActivity() {
         try {
             Intent intent = new Intent(this, EventsActivity.class);
             startActivity(intent);
-            // Don't call finish() here to allow back navigation
         } catch (Exception e) {
             Log.e(TAG, "Error launching EventsActivity", e);
             Toast.makeText(this, "Events feature coming soon", Toast.LENGTH_SHORT).show();
@@ -275,11 +285,6 @@ public class HomeActivity extends BaseActivity {
         findViewById(R.id.notesSectionHeader).setVisibility(showNotes ? View.VISIBLE : View.GONE);
         findViewById(R.id.streakSectionHeader).setVisibility(position == 0 ? View.VISIBLE : View.GONE);
         findViewById(R.id.streakCalendarView).setVisibility(position == 0 ? View.VISIBLE : View.GONE);
-        
-        // If Events tab is selected, navigate to EventsActivity
-        if (position == 3) {
-            navigateToEventsActivity();
-        }
     }
 
     private void navigateToTabActivity(int position) {
@@ -292,7 +297,6 @@ public class HomeActivity extends BaseActivity {
         if (targetActivity != null) {
             Intent intent = new Intent(this, targetActivity);
             startActivity(intent);
-            // Don't call finish() to allow back navigation
         }
     }
 
@@ -394,7 +398,6 @@ public class HomeActivity extends BaseActivity {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
 
-    // Task Adapter
     static class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TaskViewHolder> {
         private final List<Task> tasks;
         private final OnTaskClickListener listener;
@@ -459,7 +462,6 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    // Note Adapter
     static class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
         private final List<Note> notes;
         private final OnNoteClickListener listener;

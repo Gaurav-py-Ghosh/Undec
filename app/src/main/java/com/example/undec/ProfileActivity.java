@@ -16,19 +16,24 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class ProfileActivity extends BaseActivity {
     private static final String TAG = "ProfileActivity";
     private StreakCalendarView streakCalendarView;
+    
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_profile;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            setContentView(R.layout.activity_profile);
             Log.d(TAG, "ProfileActivity onCreate started");
 
+            // Initialize bottom navigation first to avoid crashes
+            setupBottomNavigation(R.id.nav_profile);
+            
             // Initialize views
             streakCalendarView = findViewById(R.id.streakCalendarView);
             RecyclerView taskRecyclerView = findViewById(R.id.taskRecyclerView);
-
-            setupBottomNavigation(R.id.nav_profile);
 
             int streakCount = getIntent().getIntExtra("streakCount", 0);
 

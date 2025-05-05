@@ -49,6 +49,9 @@ public class EventsActivity extends BaseActivity {
         setContentView(R.layout.activity_events);
         
         try {
+            // Initialize bottom navigation first to avoid crashes
+            setupBottomNavigation(R.id.nav_home); // No specific events tab, so home is used
+            
             // Setup toolbar
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
@@ -58,9 +61,6 @@ public class EventsActivity extends BaseActivity {
             // Initialize RecyclerView
             eventsRecyclerView = findViewById(R.id.eventsRecyclerView);
             eventsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            
-            // Setup bottom navigation
-            setupBottomNavigation(R.id.nav_home); // No specific events tab, so home is used
             
             // Add FAB for adding events
             fabAddEvent = findViewById(R.id.fabAddEvent);
