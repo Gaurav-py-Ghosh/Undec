@@ -1,0 +1,66 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/calendarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000"
+    android:padding="16dp">
+
+    <!-- Month and navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/btnPrev"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:src="@drawable/ic_left_arrow"
+            app:tint="@color/background" />
+
+        <TextView
+            android:id="@+id/monthText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="May 2025"
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:layout_marginHorizontal="16dp"/>
+
+        <ImageView
+            android:id="@+id/btnNext"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:src="@drawable/ic_right_arrow"
+            app:tint="@color/background"/>
+    </LinearLayout>
+
+    <!-- Calendar Grid -->
+    <GridView
+        android:id="@+id/calendarGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="7"
+        android:verticalSpacing="8dp"
+        android:horizontalSpacing="8dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"/>
+
+    <!-- Task List Below -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tasks for selected day"
+        android:textColor="#fff"
+        android:paddingTop="16dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/taskRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+</LinearLayout>

@@ -1,84 +1,87 @@
 package com.example.undec;
 
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder> {
+public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TaskViewHolder> {
+    private List<Task> tasks;
+    private OnTaskClickListener listener;
 
-    private List<Task> taskList;
-
-    public TodoAdapter(List<Task> taskList) {
-        this.taskList = taskList;
+    public interface OnTaskClickListener {
+        void onTaskClick(int position);
     }
 
-    public static class TodoViewHolder extends RecyclerView.ViewHolder {
-        RadioButton taskRadio;
-        TextView taskTitle;
-        CardView cardView;
-
-        public TodoViewHolder(@NonNull View itemView) {
-            super(itemView);
-            taskRadio = itemView.findViewById(R.id.taskRadio);
-            taskTitle = itemView.findViewById(R.id.taskTitle);
-            cardView = itemView.findViewById(R.id.cardView); // CardView must have this ID in XML
-        }
-
-        public void bind(Task task) {
-            taskTitle.setText(task.title);
-            taskRadio.setChecked(task.isCompleted);
-            setStrikeThrough(taskTitle, task.isCompleted);
-            setCardBackground(task.isCompleted);
-
-            taskRadio.setOnClickListener(v -> {
-                task.isCompleted = !task.isCompleted;
-                taskRadio.setChecked(task.isCompleted);
-                setStrikeThrough(taskTitle, task.isCompleted);
-                setCardBackground(task.isCompleted);
-            });
-        }
-
-        private void setStrikeThrough(TextView textView, boolean isStriked) {
-            if (isStriked) {
-                textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            } else {
-                textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-            }
-        }
-
-        private void setCardBackground(boolean isCompleted) {
-            int color = isCompleted
-                    ? Color.parseColor("#EEEEEE")  // Gray background when completed
-                    : Color.WHITE;                // Default white
-            cardView.setCardBackgroundColor(color);
-        }
+    public TodoAdapter(List<Task> tasks, OnTaskClickListener listener) {
+        this.tasks = tasks;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
-    public TodoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_todo_task, parent, false);
-        return new TodoViewHolder(view);
+        return new TaskViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TodoViewHolder holder, int position) {
-        holder.bind(taskList.get(position));
+    public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
+        Task task = tasks.get(position);
+        holder.bind(task);
     }
 
     @Override
     public int getItemCount() {
-        return taskList.size();
+        return tasks.size();
+    }
+
+    class TaskViewHolder extends RecyclerView.ViewHolder {
+        private RadioButton taskCheckbox;
+        private TextView taskTitle;
+        private TextView taskTime;
+        private View priority;
+
+        public TaskViewHolder(@NonNull View itemView) {
+            super(itemView);
+            taskTitle = itemView.findViewById(R.id.taskTitle);
+            taskTime = itemView.findViewById(R.id.taskTime);
+            priority = itemView.findViewById(R.id.statusIndicator);
+            taskCheckbox = itemView.findViewById(R.id.taskRadio);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onTaskClick(position);
+                }
+            });
+        }
+
+        public void bind(Task task) {
+            taskTitle.setText(task.getName());
+            taskCheckbox.setChecked(task.isCompleted());
+            taskTime.setText(task.getFormattedDate());
+
+            // Set priority color
+            switch (task.getPriority().toLowerCase()) {
+                case "high":
+                    priority.setBackgroundColor(Color.RED);
+                    break;
+                case "medium":
+                    priority.setBackgroundColor(Color.YELLOW);
+                    break;
+                default: // low
+                    priority.setBackgroundColor(Color.GREEN);
+            }
+        }
     }
 }

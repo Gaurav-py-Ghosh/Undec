@@ -1,42 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:background="#F5F5F5"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@color/black"
+    tools:context=".HomeActivity">
 
-    <!-- Carousel RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/carouselRecyclerView"
+    <!-- Content Area -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:clipToPadding="false"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:overScrollMode="never"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Your Tasks"
+                android:textColor="@color/background"
+                android:textSize="24sp" />
+
+            <!-- Tasks List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/todoRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- Notes Title and View All Button -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Your Notes"
+                    android:textColor="@color/background"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/btnViewAllNotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View All"
+                    android:textSize="12sp"
+                    android:backgroundTint="@color/colorAccent"
+                    android:padding="8dp"
+                    android:minHeight="36dp" />
+            </LinearLayout>
+
+            <!-- Notes Horizontal List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/notesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginBottom="16dp"
+                android:clipToPadding="false"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp" />
+
+            <!-- Streak Calendar Title -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="Your Streak Calendar"
+                android:textColor="@color/background"
+                android:textSize="18sp" />
+
+            <!-- Streak Calendar -->
+            <com.example.undec.StreakCalendarView
+                android:id="@+id/streakCalendarView"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Navigation Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/btnViewProfile"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="View Profile"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/btnViewTasks"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="All Tasks"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Add Task FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddTask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_add"/>
+
+    <!-- Add Note FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/fabAddTask"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:orientation="horizontal" />
+        android:backgroundTint="@color/colorAccent"
+        android:src="@drawable/ic_add"/>
 
-    <!-- To-Do Title -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Daily Tasks"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp" />
-
-    <!-- To-Do List RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/todoRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:nestedScrollingEnabled="true"/>
-    <com.example.undec.BottomNavBar
-        android:id="@+id/bottomNavBar"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_alignParentBottom="true"/>
-</LinearLayout>
+</RelativeLayout>

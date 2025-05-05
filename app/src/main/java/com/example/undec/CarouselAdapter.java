@@ -13,20 +13,30 @@ import java.util.List;
 
 public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.CarouselViewHolder> {
 
-    private List<NoteCard> noteList;
+    private List<Note> noteList;
+    private OnNoteClickListener noteClickListener;
 
-    public CarouselAdapter(List<NoteCard> noteList) {
+    public interface OnNoteClickListener {
+        void onNoteClick(Note note);
+    }
+
+    public CarouselAdapter(List<Note> noteList, OnNoteClickListener listener) {
         this.noteList = noteList;
+        this.noteClickListener = listener;
     }
 
     public static class CarouselViewHolder extends RecyclerView.ViewHolder {
         ImageView noteImage;
         TextView noteTitle;
+        TextView noteCategory;
+        TextView noteDate;
 
         public CarouselViewHolder(@NonNull View itemView) {
             super(itemView);
             noteImage = itemView.findViewById(R.id.noteImage);
             noteTitle = itemView.findViewById(R.id.noteTitle);
+            noteCategory = itemView.findViewById(R.id.noteCategory);
+            noteDate = itemView.findViewById(R.id.noteDate);
         }
     }
 
@@ -40,13 +50,30 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
 
     @Override
     public void onBindViewHolder(@NonNull CarouselViewHolder holder, int position) {
-        NoteCard note = noteList.get(position);
-        holder.noteTitle.setText(note.title);
-        holder.noteImage.setImageResource(note.imageResId);
+        Note note = noteList.get(position);
+
+        // Set all note information
+        holder.noteTitle.setText(note.getTitle());
+        holder.noteCategory.setText(note.getCategory());
+        holder.noteDate.setText(note.getDate());
+        holder.noteImage.setImageResource(note.getImageResId());
+
+        // Add click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (noteClickListener != null) {
+                noteClickListener.onNoteClick(note);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return noteList.size();
+    }
+
+    public void updateNotes(List<Note> newNotes) {
+        noteList.clear();
+        noteList.addAll(newNotes);
+        notifyDataSetChanged();
     }
 }
