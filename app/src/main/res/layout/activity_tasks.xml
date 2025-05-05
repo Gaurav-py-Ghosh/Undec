@@ -34,9 +34,11 @@
 
             <com.example.undec.StreakCalendarView
                 android:id="@+id/streakCalendarView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp" />
+                android:layout_width="350dp"
+                android:layout_height="300dp"
+            android:layout_marginBottom="24dp"
+            android:background="@color/surface"
+            android:elevation="2dp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -63,12 +65,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="84dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="88dp"
         android:contentDescription="Add Task"
         app:backgroundTint="@color/colorAccent"
         app:tint="@color/background"
-        app:srcCompat="@drawable/ic_add" />
+        app:srcCompat="@drawable/ic_add"
+        app:layout_dodgeInsetEdges="bottom" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -80,7 +83,8 @@
         app:elevation="8dp"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
-        app:menu="@menu/nav_menu" />
+        app:menu="@menu/nav_menu"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
 
 <!--    <com.example.undec.BottomNavView-->
 <!--        android:id="@+id/customBottomNav"-->

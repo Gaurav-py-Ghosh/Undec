@@ -431,12 +431,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="84dp"
+        android:layout_marginBottom="88dp"
         android:contentDescription="Go to Events"
         android:src="@android:drawable/ic_menu_my_calendar"
         app:backgroundTint="@color/primary_color"
         app:tint="@android:color/white"
-        app:elevation="6dp" />
+        app:elevation="6dp"
+        app:layout_dodgeInsetEdges="bottom" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -448,6 +449,7 @@
         app:elevation="8dp"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
-        app:menu="@menu/nav_menu" />
+        app:menu="@menu/nav_menu"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

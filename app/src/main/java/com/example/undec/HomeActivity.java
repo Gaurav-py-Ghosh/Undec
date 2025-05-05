@@ -130,6 +130,24 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
+    private void checkForBrokenStreak() {
+        SharedPreferences sharedPreferences = getSharedPreferences("StreakPreferences", MODE_PRIVATE);
+        String yesterday = getYesterdayDate();
+        boolean yesterdayCompleted = sharedPreferences.getBoolean(yesterday, false);
+
+        String currentDate = getCurrentDate();
+        boolean todayCompleted = sharedPreferences.getBoolean(currentDate, false);
+
+        // If yesterday wasn't completed and today isn't completed (after midnight)
+        if (!yesterdayCompleted && !todayCompleted) {
+            // Reset streak
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("current_streak", 0);
+            editor.apply();
+        }
+
+        updateStreakDisplay(sharedPreferences);
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -143,7 +161,8 @@ public class HomeActivity extends BaseActivity {
             noteAdapter.notifyDataSetChanged();
         }
 
-        checkAndMarkStreak();
+        checkForBrokenStreak();  // Check if streak was broken
+        checkAndMarkStreak();    // Update current day's status
     }
 
     private void setupNotesSection(RecyclerView notesRecyclerView) {
@@ -307,14 +326,35 @@ public class HomeActivity extends BaseActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("StreakPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
+        // Mark today as completed if all tasks are done
         if (allTasksCompleted) {
             editor.putBoolean(currentDate, true);
+
+            // Check if yesterday was completed to maintain streak
+            String yesterday = getYesterdayDate();
+            boolean yesterdayCompleted = sharedPreferences.getBoolean(yesterday, false);
+
+            if (yesterdayCompleted) {
+                // Continue existing streak
+                int currentStreak = sharedPreferences.getInt("current_streak", 0);
+                editor.putInt("current_streak", currentStreak + 1);
+            } else {
+                // Start new streak
+                editor.putInt("current_streak", 1);
+            }
         } else {
             editor.putBoolean(currentDate, false);
+            // Don't reset streak here - only reset if the day passes without completion
         }
-        editor.apply();
 
+        editor.apply();
         updateStreakDisplay(sharedPreferences);
+    }
+
+    private String getYesterdayDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, -1);
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
     }
 
     private boolean areAllTasksDone() {
@@ -335,6 +375,7 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void updateStreakDisplay(SharedPreferences sharedPreferences) {
+        // Get all completed days
         Map<String, ?> allStreaks = sharedPreferences.getAll();
         List<Integer> completedDays = new ArrayList<>();
 
@@ -344,7 +385,7 @@ public class HomeActivity extends BaseActivity {
 
         for (Map.Entry<String, ?> entry : allStreaks.entrySet()) {
             try {
-                if (entry.getValue() instanceof Boolean && (Boolean) entry.getValue()) {
+                if (entry.getKey().startsWith("20") && entry.getValue() instanceof Boolean && (Boolean) entry.getValue()) {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                     Date date = sdf.parse(entry.getKey());
 
@@ -361,7 +402,10 @@ public class HomeActivity extends BaseActivity {
 
         if (streakCalendarView != null) {
             streakCalendarView.setCompletedDays(completedDays);
-            streakCalendarView.setStreakCount(calculateCurrentStreak(sharedPreferences));
+
+            // Get the current streak count
+            int currentStreak = sharedPreferences.getInt("current_streak", 0);
+            streakCalendarView.setStreakCount(currentStreak);
 
             int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
             String currentDate = getCurrentDate();
@@ -376,7 +420,6 @@ public class HomeActivity extends BaseActivity {
             }
         }
     }
-
     private int calculateCurrentStreak(SharedPreferences sharedPreferences) {
         int streak = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());

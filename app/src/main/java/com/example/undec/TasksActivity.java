@@ -185,11 +185,19 @@ public class TasksActivity extends BaseActivity {
 
     private void updateStreakCalendar() {
         try {
-            // Get completed days from StreakManager
-            List<Integer> completedDays = streakManager.getCurrentMonthCompletedDays();
+            // Get today's day of month
+            Calendar cal = Calendar.getInstance();
+            int today = cal.get(Calendar.DAY_OF_MONTH);
+
+            // Create test data - replace with your actual streak data
+            List<Integer> completedDays = new ArrayList<>();
+            completedDays.add(today - 1); // Yesterday
+            completedDays.add(today - 2); // Day before
+
             calendarView.setCompletedDays(completedDays);
-            calendarView.setStreakCount(streakManager.getCurrentStreak());
-            Log.d(TAG, "Streak calendar updated");
+            calendarView.setStreakCount(completedDays.size());
+
+            Log.d(TAG, "Streak calendar updated with " + completedDays.size() + " completed days");
         } catch (Exception e) {
             Log.e(TAG, "Error updating streak calendar: " + e.getMessage(), e);
         }

@@ -29,6 +29,7 @@
     <color name="streak_completed">#BB86FC</color>
     <color name="streak_current">#03DAC6</color>
     <color name="streak_future">#2D2D2D</color>
+    <color name="streak_in_progress">#FFC107</color>
 
     <!-- Meeting platform colors -->
     <color name="google_meet_color">#00796B</color>

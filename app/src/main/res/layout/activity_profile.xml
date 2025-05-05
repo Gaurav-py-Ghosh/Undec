@@ -29,6 +29,111 @@
                 android:textColor="@color/white"
                 android:textSize="24sp" />
 
+            <!-- Profile Information Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Name -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="John Appleseed"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <!-- Email -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Email"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Gyllinhall@baims.com"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <!-- Phone -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phone"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="+966 9861 22 12"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <!-- Bio -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bio"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvBio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="This is a bio of John Appleseed, the best Physics professor of all time."
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <!-- Character Count -->
+                    <TextView
+                        android:id="@+id/tvCharCount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="49 / 150 characters"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                    <!-- Update Button -->
+                    <Button
+                        android:id="@+id/btnUpdate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Update"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/colorAccent" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- Streak Calendar Title -->
             <TextView
                 android:layout_width="match_parent"
@@ -62,11 +167,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:scrollbars="vertical"/>
-
-            <!-- Account Settings Header -->
-
-
-            <!-- Add more profile elements as needed -->
         </LinearLayout>
     </ScrollView>
 
