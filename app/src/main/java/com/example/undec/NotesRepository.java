@@ -11,16 +11,14 @@ public class NotesRepository {
 
     public static List<Note> getAllNotes() {
         if (notes == null) {
-            String currentDate = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
-
             notes = Arrays.asList(
-                    new Note("Algebra Basics", "Mathematics", currentDate, R.drawable.maths, "Basic concepts of algebra including equations, functions, and graphs."),
-                    new Note("Quantum Physics", "Physics", currentDate, R.drawable.physics, "Introduction to quantum mechanics and its fundamental principles."),
-                    new Note("Organic Chemistry", "Chemistry", currentDate, R.drawable.chem, "Study of carbon compounds and their reactions."),
-                    new Note("Cell Biology", "Biology", currentDate, R.drawable.biology, "Understanding cell structure, function, and processes."),
-                    new Note("How to Draw a Wireframe", "Design", currentDate, R.drawable.img_4, "Step-by-step guide to creating effective wireframes."),
-                    new Note("Scientific Facts of Space", "Science", currentDate, R.drawable.img2, "Fascinating facts about space, planets, and the universe."),
-                    new Note("Ways To Succeed Early", "Success", currentDate, R.drawable.img3, "Tips and strategies for achieving success in your career.")
+                    new Note("How To Draw A Professional Wireframe?", "Design • Wireframe", "2020/05/09", R.drawable.img_4, "For Wireframe Design, You Need To Have A Pen And Paper With You..."),
+                    new Note("Ways To Succeed Early", "Success • Goals", "2020/05/09", R.drawable.img3, ""),
+                    new Note("Scientific Facts Of Space", "Science • Space", "2020/06/08", R.drawable.img2, ""),
+                    new Note("Algebra Basics", "Mathematics • Basics", new SimpleDateFormat("yyyy/MM/dd").format(new Date()), R.drawable.maths, ""),
+                    new Note("Quantum Physics", "Physics • Quantum", new SimpleDateFormat("yyyy/MM/dd").format(new Date()), R.drawable.physics, ""),
+                    new Note("Organic Chemistry", "Chemistry • Organic", new SimpleDateFormat("yyyy/MM/dd").format(new Date()), R.drawable.chem, ""),
+                    new Note("Cell Biology", "Biology • Cells", new SimpleDateFormat("yyyy/MM/dd").format(new Date()), R.drawable.biology, "")
             );
         }
         return notes;

@@ -28,79 +28,415 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
-            <!-- Tasks Section -->
-            <TextView
+            <!-- Welcome Section -->
+            <LinearLayout
+                android:id="@+id/welcomeSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Tasks"
-                android:textColor="@color/text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:layout_marginBottom="28dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/userNameText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="gaurav ghosh"
+                    android:textColor="@color/text_primary"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/scheduledTasksCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="All Scheduled for Today (33)"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Task Filter Tabs -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:tabBackground="@drawable/tab_background_selector"
+                app:tabIndicatorHeight="0dp"
+                app:tabMode="scrollable"
+                app:tabPaddingStart="20dp"
+                app:tabPaddingEnd="20dp"
+                app:tabRippleColor="@null"
+                app:tabSelectedTextColor="@color/white"
+                app:tabTextAppearance="@style/TabTextAppearance"
+                app:tabTextColor="@color/text_secondary">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Task" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notes" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Events" />
+            </com.google.android.material.tabs.TabLayout>
+
+            <!-- Tasks Section -->
+            <LinearLayout
+                android:id="@+id/taskSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Task List"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/seeMoreTasks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See more"
+                    android:padding="4dp"
+                    android:textColor="@color/primary_color"
+                    android:textSize="14sp"
+                    android:background="?attr/selectableItemBackground" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/todoRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:nestedScrollingEnabled="false" />
+                android:layout_marginBottom="28dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingBottom="4dp" />
 
-            <!-- Notes Section -->
-            <TextView
+            <!-- Upcoming Event Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/upcomingEventCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Recent Notes"
-                android:textColor="@color/text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="28dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="November 24, 2024, 9:50 AM"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Design Project Client Meeting"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="6dp"
+                            android:src="@drawable/img" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Google Meet"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="+7"
+                            android:textColor="@color/primary_color"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Notes Section -->
+            <LinearLayout
+                android:id="@+id/notesSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Recent Notes"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/notesRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="28dp"
                 android:clipToPadding="false"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp" />
 
-            <!-- Streak Section -->
-            <TextView
+            <!-- Upcoming Task Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/upcomingTaskCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Your Streak"
-                android:textColor="@color/text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="28dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="20 Oct, 2025"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Design Smart Home UI Kits"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
+
+                        <CheckBox
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Team Strategy Meeting"
+                            android:textColor="@color/text_primary"
+                            android:paddingStart="8dp" />
+
+                        <CheckBox
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="UX Research Session"
+                            android:textColor="@color/text_primary"
+                            android:paddingStart="8dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Events Section -->
+            <LinearLayout
+                android:id="@+id/eventsSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Your Events"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+                    
+                <TextView
+                    android:id="@+id/seeMoreEvents"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See more"
+                    android:padding="4dp"
+                    android:textColor="@color/primary_color"
+                    android:textSize="14sp"
+                    android:background="?attr/selectableItemBackground" />
+            </LinearLayout>
+
+            <!-- Event Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/eventCardNavigation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="28dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="View all your events"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Manage Events &amp; Meetings"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Tap to open events screen"
+                        android:textColor="@color/primary_color"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Streak Section -->
+            <LinearLayout
+                android:id="@+id/streakSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Your Streak"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/seeMoreStreak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See more"
+                    android:padding="4dp"
+                    android:textColor="@color/primary_color"
+                    android:textSize="14sp"
+                    android:background="?attr/selectableItemBackground" />
+
+
+            </LinearLayout>
+            <TextView
+                android:id="@+id/seeMoreNotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="See more"
+                android:padding="4dp"
+                android:textColor="@color/primary_color"
+                android:textSize="14sp"
+                android:background="?attr/selectableItemBackground" />
 
             <com.example.undec.StreakCalendarView
                 android:id="@+id/streakCalendarView"
                 android:layout_width="match_parent"
                 android:layout_height="280dp"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="20dp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Add Task FAB -->
+    <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddTask"
+        android:id="@+id/fabEvents"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="Add Task"
-        app:backgroundTint="@color/colorAccent"
-        app:srcCompat="@drawable/ic_add" />
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="84dp"
+        android:contentDescription="Go to Events"
+        android:src="@android:drawable/ic_menu_my_calendar"
+        app:backgroundTint="@color/primary_color"
+        app:tint="@android:color/white"
+        app:elevation="6dp" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -109,6 +445,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/surface"
+        app:elevation="8dp"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
         app:menu="@menu/nav_menu" />

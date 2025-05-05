@@ -5,16 +5,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
 
-    private List<Note> notes;
-    private OnNoteClickListener listener;
+    private final List<Note> notes;
+    private final OnNoteClickListener listener;
 
     public interface OnNoteClickListener {
         void onNoteClick(Note note);
@@ -37,12 +35,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         Note note = notes.get(position);
         holder.bind(note);
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onNoteClick(note);
-            }
-        });
+        holder.itemView.setOnClickListener(v -> listener.onNoteClick(note));
     }
 
     @Override
@@ -51,24 +44,35 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     }
 
     static class NoteViewHolder extends RecyclerView.ViewHolder {
-        private TextView titleTextView;
-        private TextView categoryTextView;
-        private TextView dateTextView;
-        private ImageView noteImageView;
+        private final TextView titleTextView;
+        private final TextView category1TextView;
+        private final TextView category2TextView;
+        private final TextView dateTextView;
+        private final ImageView noteImageView;
 
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.noteTitle);
-            categoryTextView = itemView.findViewById(R.id.noteCategory);
+            category1TextView = itemView.findViewById(R.id.noteCategory1);
+            category2TextView = itemView.findViewById(R.id.noteCategory2);
             dateTextView = itemView.findViewById(R.id.noteDate);
             noteImageView = itemView.findViewById(R.id.noteImage);
         }
 
         public void bind(Note note) {
             titleTextView.setText(note.getTitle());
-            categoryTextView.setText(note.getCategory());
-            dateTextView.setText(note.getDate());
             noteImageView.setImageResource(note.getImageResId());
+
+            String[] categories = note.getCategory().split(" • ");
+            category1TextView.setText(categories[0].trim());
+            if (categories.length > 1) {
+                category2TextView.setText(categories[1].trim());
+                category2TextView.setVisibility(View.VISIBLE);
+            } else {
+                category2TextView.setVisibility(View.GONE);
+            }
+
+            dateTextView.setText(note.getDate());
         }
     }
 }

@@ -30,6 +30,11 @@
     <color name="streak_current">#03DAC6</color>
     <color name="streak_future">#2D2D2D</color>
 
+    <!-- Meeting platform colors -->
+    <color name="google_meet_color">#00796B</color>
+    <color name="zoom_color">#2D8CFF</color>
+    <color name="ms_teams_color">#6264A7</color>
+
     <!-- Backgrounds and Surfaces -->
     <color name="dark_background">#FFFFFF</color>
 
@@ -55,5 +60,10 @@
     
     <!-- Utility colors -->
     <color name="success">#4CAF50</color>
+
+    <color name="hintColor">#B3FFFFFF</color> <!-- 70% white, soft and visible on dark -->
+    <color name="primary_color">#6200EE</color>
+    <color name="white">#FFFFFF</color>
+    <color name="text">#62000000</color>
 
 </resources>

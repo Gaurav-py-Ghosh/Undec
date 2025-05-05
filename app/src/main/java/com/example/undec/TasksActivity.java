@@ -31,12 +31,12 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.widget.Button;
+import android.widget.AutoCompleteTextView;
 
 public class TasksActivity extends BaseActivity {
     // Views
     private RecyclerView recyclerView;
     private FloatingActionButton addTaskButton;
-    private BottomNavView bottomNavigation;
     private StreakCalendarView calendarView;
     private static final String TAG = "TasksActivity";
 
@@ -95,7 +95,6 @@ public class TasksActivity extends BaseActivity {
         try {
             recyclerView = findViewById(R.id.tasksRecyclerView);
             addTaskButton = findViewById(R.id.fabAddTask);
-            bottomNavigation = findViewById(R.id.customBottomNav);
             calendarView = findViewById(R.id.streakCalendarView);
 
             boolean allViewsFound = true;
@@ -108,17 +107,9 @@ public class TasksActivity extends BaseActivity {
                 Log.e(TAG, "fabAddTask is null");
                 allViewsFound = false;
             }
-            if (bottomNavigation == null) {
-                Log.e(TAG, "customBottomNav is null");
-                allViewsFound = false;
-            }
             if (calendarView == null) {
                 Log.e(TAG, "streakCalendarView is null");
                 allViewsFound = false;
-            }
-
-            if (allViewsFound) {
-                bottomNavigation.setSelectedIndex(1);
             }
 
             return allViewsFound;
@@ -154,20 +145,39 @@ public class TasksActivity extends BaseActivity {
             String yesterdayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     .format(cal.getTime());
 
-            // Add tasks with different dates
+            // Add tasks with different dates - get these from TaskManager instead if you have real data
             tasks.add(new Task("Complete math assignment", false, "high", todayDate));
             tasks.add(new Task("Read chapter 5", true, "medium", todayDate));
             tasks.add(new Task("Prepare for lab", false, "low", tomorrowDate));
             tasks.add(new Task("Submit research paper", false, "high", yesterdayDate));
 
-            // Create and set the adapter with new constructor matching TodoAdapter
-            taskAdapter = new TaskAdapter(tasks);
+            // Create and set the adapter
+            taskAdapter = new TaskAdapter(tasks, position -> {
+                // Toggle task completion
+                Task task = tasks.get(position);
+                task.setCompleted(!task.isCompleted());
+                taskAdapter.notifyItemChanged(position);
+                
+                // Update streak if task's date is today
+                if (task.getDate().equals(currentDate)) {
+                    updateTaskCompletion(task, task.isCompleted());
+                }
+                
+                // Show feedback
+                if (task.isCompleted()) {
+                    showMessage("Task marked as complete");
+                } else {
+                    showMessage("Task marked as incomplete");
+                }
+            });
+            
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(taskAdapter);
 
             Log.d(TAG, "Tasks loaded successfully, count: " + tasks.size());
         } catch (Exception e) {
             Log.e(TAG, "Error loading tasks: " + e.getMessage(), e);
+            showMessage("Error loading tasks: " + e.getMessage());
         }
     }
 
@@ -235,124 +245,141 @@ public class TasksActivity extends BaseActivity {
     }
 
     private void showAddTaskDialog() {
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_task, null);
-        
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-            .setTitle("Add New Task")
-            .setView(dialogView)
-            .setPositiveButton("Add", null)
-            .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-
-        AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        try {
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_task, null);
+            
+            // Find views
             EditText taskTitleInput = dialogView.findViewById(R.id.taskTitleInput);
-            Spinner prioritySpinner = dialogView.findViewById(R.id.prioritySpinner);
+            AutoCompleteTextView prioritySpinner = dialogView.findViewById(R.id.prioritySpinner);
             DatePicker datePicker = dialogView.findViewById(R.id.datePicker);
-
-            // Set up priority spinner
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                    R.array.priority_levels, R.layout.item_priority_spinner);
-            adapter.setDropDownViewResource(R.layout.item_priority_spinner_dropdown);
-            prioritySpinner.setAdapter(adapter);
-
-            positiveButton.setOnClickListener(v -> {
-                String taskTitle = taskTitleInput.getText().toString().trim();
-                if (taskTitle.isEmpty()) {
-                    taskTitleInput.setError("Task title is required");
-                    return;
-                }
-
-                String priority = prioritySpinner.getSelectedItem().toString().toLowerCase();
-                
-                // Get selected date
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
-                String taskDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        .format(calendar.getTime());
-
-                // Create and add the new task
-                Task newTask = new Task(taskTitle, false, priority, taskDate);
-                tasks.add(newTask);
-                taskAdapter.notifyItemInserted(tasks.size() - 1);
-
-                // Update streak if task is for today
-                if (taskDate.equals(currentDate)) {
-                    updateTaskCompletion(newTask, false);
-                }
-
-                showMessage("Task added successfully");
-                dialog.dismiss();
+            
+            // Set up priority dropdown
+            String[] priorities = new String[]{"Low", "Medium", "High"};
+            ArrayAdapter<String> priorityAdapter = new ArrayAdapter<>(
+                    this, 
+                    R.layout.item_priority_spinner, 
+                    R.id.text1,
+                    priorities);
+            priorityAdapter.setDropDownViewResource(R.layout.item_priority_spinner_dropdown);
+            prioritySpinner.setAdapter(priorityAdapter);
+            prioritySpinner.setText(priorities[1], false); // Default to Medium
+            prioritySpinner.setOnItemClickListener((parent, view, position, id) -> {
+                prioritySpinner.setText(priorities[position], false);
             });
-        });
-
-        dialog.show();
-
-        // Style the dialog
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+            
+            AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle("Add New Task")
+                .setView(dialogView)
+                .setPositiveButton("Add", null)  // We'll set this in onShowListener
+                .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss())
+                .create();
+            
+            dialog.setOnShowListener(dialogInterface -> {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(view -> {
+                    String taskTitle = taskTitleInput.getText().toString().trim();
+                    String priority = prioritySpinner.getText().toString().toLowerCase();
+                    
+                    // Get selected date
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                    String formattedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            .format(calendar.getTime());
+                    
+                    if (taskTitle.isEmpty()) {
+                        taskTitleInput.setError("Task title cannot be empty");
+                        return;
+                    }
+                    
+                    // Create new task and add it
+                    Task newTask = new Task(taskTitle, false, priority, formattedDate);
+                    tasks.add(newTask);
+                    taskAdapter.notifyDataSetChanged();
+                    
+                    // Update UI and show confirmation
+                    updateStreakCalendar();
+                    dialog.dismiss();
+                    Toast.makeText(TasksActivity.this, "Task added: " + taskTitle, Toast.LENGTH_SHORT).show();
+                    
+                    Log.d(TAG, "New task added: " + taskTitle + ", priority: " + priority + ", date: " + formattedDate);
+                });
+            });
+            
+            dialog.show();
+            Log.d(TAG, "Add task dialog shown");
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing add task dialog: " + e.getMessage(), e);
+            Toast.makeText(this, "Error adding task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
+    // Interface for task click events
+    interface OnTaskClickListener {
+        void onTaskClick(int position);
+    }
+    
     // Task adapter implementation
-    private class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
+    private class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
         private final List<Task> taskList;
+        private final OnTaskClickListener listener;
 
-        public TaskAdapter(List<Task> taskList) {
+        public TaskAdapter(List<Task> taskList, OnTaskClickListener listener) {
             this.taskList = taskList;
+            this.listener = listener;
         }
 
         @NonNull
         @Override
         public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext())
+            View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_todo_task, parent, false);
-            return new TaskViewHolder(itemView);
+            return new TaskViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
             Task task = taskList.get(position);
-            holder.taskTitle.setText(task.title);
-
-            // Set the task date if available
-            if (holder.taskTime != null) {
-                // Format the date for display (check if the date property exists first)
-                try {
-                    SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    SimpleDateFormat outputFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
-                    if (task.date != null) {
-                        Date date = inputFormat.parse(task.date);
-                        holder.taskTime.setText(outputFormat.format(date));
-                    } else {
-                        holder.taskTime.setText("Today"); // Default if no date
-                    }
-                } catch (Exception e) {
-                    holder.taskTime.setText("Today");
-                    Log.e(TAG, "Error formatting date: " + e.getMessage());
-                }
+            
+            // Set task data
+            holder.taskTitle.setText(task.getName());
+            holder.taskCheckbox.setChecked(task.isCompleted());
+            holder.taskTime.setText(task.getFormattedDate());
+            
+            // Set visual indicators for completion
+            if (task.isCompleted()) {
+                holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.taskTime.setPaintFlags(holder.taskTime.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
+                holder.taskTime.setPaintFlags(holder.taskTime.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
             }
-
-            // Set priority color if the view exists
-            if (holder.priority != null) {
-                int color;
-                switch (task.priority.toLowerCase()) {
-                    case "high":
-                        color = android.graphics.Color.parseColor("#D32F2F"); // Red
-                        break;
-                    case "medium":
-                        color = android.graphics.Color.parseColor("#FFA000"); // Amber
-                        break;
-                    default:
-                        color = android.graphics.Color.parseColor("#388E3C"); // Green
-                        break;
-                }
-                holder.priority.setBackgroundColor(color);
+            
+            // Set priority color
+            int priorityColor;
+            switch (task.getPriority().toLowerCase()) {
+                case "high":
+                    priorityColor = holder.itemView.getContext().getResources().getColor(R.color.priority_high);
+                    break;
+                case "medium":
+                    priorityColor = holder.itemView.getContext().getResources().getColor(R.color.priority_medium);
+                    break;
+                default:
+                    priorityColor = holder.itemView.getContext().getResources().getColor(R.color.priority_low);
+                    break;
             }
-
-            holder.taskCheckbox.setChecked(task.completed);
-
-            // Handle task completion
-            holder.taskCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                updateTaskCompletion(task, isChecked);
+            holder.priority.setBackgroundColor(priorityColor);
+            
+            // Set click listeners
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onTaskClick(position);
+                }
+            });
+            
+            holder.taskCheckbox.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onTaskClick(position);
+                }
             });
         }
 
@@ -360,21 +387,20 @@ public class TasksActivity extends BaseActivity {
         public int getItemCount() {
             return taskList.size();
         }
-    }
 
-    // Task ViewHolder implementation
-    private static class TaskViewHolder extends RecyclerView.ViewHolder {
-        TextView taskTitle;
-        TextView taskTime;
-        View priority;
-        MaterialCheckBox taskCheckbox;
+        class TaskViewHolder extends RecyclerView.ViewHolder {
+            TextView taskTitle;
+            TextView taskTime;
+            View priority;
+            MaterialCheckBox taskCheckbox;
 
-        public TaskViewHolder(@NonNull View itemView) {
-            super(itemView);
-            taskTitle = itemView.findViewById(R.id.taskTitle);
-            taskTime = itemView.findViewById(R.id.taskTime);
-            priority = itemView.findViewById(R.id.priorityIndicator);
-            taskCheckbox = itemView.findViewById(R.id.taskCheckbox);
+            public TaskViewHolder(@NonNull View itemView) {
+                super(itemView);
+                taskTitle = itemView.findViewById(R.id.taskTitle);
+                taskTime = itemView.findViewById(R.id.taskTime);
+                priority = itemView.findViewById(R.id.priorityIndicator);
+                taskCheckbox = itemView.findViewById(R.id.taskCheckbox);
+            }
         }
     }
 
@@ -389,9 +415,7 @@ public class TasksActivity extends BaseActivity {
             this.title = title;
             this.completed = completed;
             this.priority = priority;
-            // Set default date to today
-            this.date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    .format(Calendar.getInstance().getTime());
+            this.date = getCurrentDate();
         }
 
         public Task(String title, boolean completed, String priority, String date) {
@@ -412,5 +436,38 @@ public class TasksActivity extends BaseActivity {
         public String getDate() {
             return date;
         }
+
+        public String getName() {
+            return title;
+        }
+
+        public String getFormattedDate() {
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                SimpleDateFormat outputFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
+                if (date != null) {
+                    Date date = inputFormat.parse(this.date);
+                    return outputFormat.format(date);
+                } else {
+                    return "Today"; // Default if no date
+                }
+            } catch (Exception e) {
+                return "Today";
+            }
+        }
+
+        public String getPriority() {
+            return priority;
+        }
+        
+        private String getCurrentDate() {
+            return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        }
+    }
+
+    @Override
+    protected void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Message shown: " + message);
     }
 }

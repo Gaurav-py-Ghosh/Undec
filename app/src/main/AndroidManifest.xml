@@ -26,6 +26,7 @@
         <activity android:name=".NotesActivity"/>
         <activity android:name=".ProfileActivity"/>
         <activity android:name=".SettingsActivity"/>
+        <activity android:name=".EventsActivity"/>
     </application>
 
 </manifest>

@@ -11,8 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.tabs.TabLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class HomeActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends BaseActivity {
 
     private TaskManager taskManager;
     private List<Task> todayTasks;
@@ -49,143 +48,113 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Log.d(TAG, "HomeActivity onCreate started");
 
-        try {
-            // Setup toolbar
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-
-            // Initialize TaskManager
-            taskManager = new TaskManager(this);
-    
-            // Initialize views
-            streakCalendarView = findViewById(R.id.streakCalendarView);
-            RecyclerView todoRecyclerView = findViewById(R.id.todoRecyclerView);
-            RecyclerView notesRecyclerView = findViewById(R.id.notesRecyclerView);
-            BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
-            FloatingActionButton fabAddTask = findViewById(R.id.fabAddTask);
-    
-            // Setup bottom navigation
-            bottomNav.setOnNavigationItemSelectedListener(this);
-            bottomNav.setSelectedItemId(R.id.nav_home);
-    
-            // Load today's tasks
-            todayTasks = taskManager.getTodayTasks();
-            
-            // Add sample tasks if none exist
-            if (todayTasks.isEmpty()) {
-                String today = getCurrentDate();
-                todayTasks.add(new Task("Complete assignment", false, "low", today));
-                todayTasks.add(new Task("Study for exam", false, "high", today));
-                todayTasks.add(new Task("Submit homework", false, "medium", today));
-                
-                // Save sample tasks
-                for (Task task : todayTasks) {
-                    taskManager.addTask(task);
-                }
-            }
-            
-            Log.d(TAG, "Loaded " + todayTasks.size() + " tasks for today");
-    
-            // Setup tasks RecyclerView
-            todoAdapter = new TodoAdapter(todayTasks, position -> {
-                Task task = todayTasks.get(position);
-                // Toggle completion status
-                task.setCompleted(!task.isCompleted());
-                
-                // Save the updated task to persistent storage
-                taskManager.updateTask(position, task);
-                
-                // Update the UI
-                todoAdapter.notifyItemChanged(position);
-                
-                // Check if all tasks are complete and update streak
-                checkAndMarkStreak();
-                
-                // Show appropriate toast message
-                if (task.isCompleted()) {
-                    Toast.makeText(this, "Task marked as complete", Toast.LENGTH_SHORT).show();
-                    
-                    // Check if this was the last task to complete
-                    if (areAllTasksDone()) {
-                        Toast.makeText(this, "🔥 All tasks completed for today!", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(this, "Task marked as incomplete", Toast.LENGTH_SHORT).show();
-                }
-            });
-    
-            todoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            todoRecyclerView.setAdapter(todoAdapter);
-            
-            // Load notes
-            setupNotesSection(notesRecyclerView);
-    
-            // Setup add task button
-            fabAddTask.setOnClickListener(v -> showAddTaskDialog());
-            
-            // Initialize streak display
-            checkAndMarkStreak();
-            Log.d(TAG, "HomeActivity setup complete");
-        } catch (Exception e) {
-            Log.e(TAG, "Error initializing HomeActivity: " + e.getMessage(), e);
-            Toast.makeText(this, "Error loading app: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        // Initialize views
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+
+        taskManager = new TaskManager(this);
+        streakCalendarView = findViewById(R.id.streakCalendarView);
+        RecyclerView todoRecyclerView = findViewById(R.id.todoRecyclerView);
+        RecyclerView notesRecyclerView = findViewById(R.id.notesRecyclerView);
+        
+        // Setup bottom navigation
+        setupBottomNavigation(R.id.nav_home);
+        
+        // Setup Events FAB
+        findViewById(R.id.fabEvents).setOnClickListener(v -> {
+            try {
+                Intent intent = new Intent(this, EventsActivity.class);
+                startActivity(intent);
+            } catch (Exception e) {
+                Log.e(TAG, "Error launching EventsActivity", e);
+                Toast.makeText(this, "Events feature coming soon", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Load today's tasks
+        todayTasks = taskManager.getTodayTasks();
+        if (todayTasks.isEmpty()) {
+            String today = getCurrentDate();
+            todayTasks.add(new Task("Complete assignment", false, "low", today));
+            todayTasks.add(new Task("Study for exam", false, "high", today));
+            todayTasks.add(new Task("Submit homework", false, "medium", today));
+            for (Task task : todayTasks) {
+                taskManager.addTask(task);
+            }
+        }
+
+        // Setup tasks RecyclerView
+        todoAdapter = new TodoAdapter(todayTasks, position -> {
+            Task task = todayTasks.get(position);
+            task.setCompleted(!task.isCompleted());
+            taskManager.updateTask(position, task);
+            todoAdapter.notifyItemChanged(position);
+            checkAndMarkStreak();
+
+            Toast.makeText(this, task.isCompleted() ?
+                    "Task completed" : "Task incomplete", Toast.LENGTH_SHORT).show();
+        });
+
+        todoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        todoRecyclerView.setAdapter(todoAdapter);
+
+        // Setup notes section
+        setupNotesSection(notesRecyclerView);
+
+        // Setup navigation
+        setupSeeMoreButtons();
+        setupTabLayout();
+
+        // Initialize streak
+        checkAndMarkStreak();
+    }
+    
+    @Override
+    protected int getNavigationMenuItemId() {
+        return R.id.nav_home;
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        
-        if (itemId == R.id.nav_home) {
-            // Already on home, do nothing
-            return true;
-        } else if (itemId == R.id.nav_tasks) {
-            startActivity(new Intent(this, TasksActivity.class));
-            return true;
-        } else if (itemId == R.id.nav_notes) {
-            startActivity(new Intent(this, NotesActivity.class));
-            return true;
-        } else if (itemId == R.id.nav_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
-            return true;
+    protected void onResume() {
+        super.onResume();
+        todayTasks = taskManager.getTodayTasks();
+        if (todoAdapter != null) {
+            todoAdapter.notifyDataSetChanged();
         }
-        
-        return false;
+
+        recentNotes = NotesRepository.getRecentNotes();
+        if (noteAdapter != null) {
+            noteAdapter.notifyDataSetChanged();
+        }
+
+        checkAndMarkStreak();
     }
-    
+
     private void setupNotesSection(RecyclerView notesRecyclerView) {
-        try {
-            // Get recent notes from repository
-            recentNotes = NotesRepository.getRecentNotes();
-            
-            if (recentNotes.isEmpty()) {
-                Log.w(TAG, "No notes found");
-                // If needed, you can add sample notes here
-            }
-            
-            Log.d(TAG, "Loaded " + recentNotes.size() + " notes");
-            
-            // Set up horizontal layout for notes
-            LinearLayoutManager layoutManager = new LinearLayoutManager(
-                    this, LinearLayoutManager.HORIZONTAL, false);
-            notesRecyclerView.setLayoutManager(layoutManager);
-            
-            // Create and set adapter
-            noteAdapter = new NoteAdapter(recentNotes, note -> {
-                // Handle note click - navigate to NotesActivity
-                Toast.makeText(this, "Opening note: " + note.getTitle(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, NotesActivity.class);
-                startActivity(intent);
-            });
-            
-            notesRecyclerView.setAdapter(noteAdapter);
-            Log.d(TAG, "Notes section setup complete");
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up notes section: " + e.getMessage(), e);
+        recentNotes = NotesRepository.getRecentNotes();
+        if (recentNotes.isEmpty()) {
+            recentNotes.add(new Note("Welcome Note", "General", getCurrentDate(),
+                    android.R.drawable.ic_menu_edit, "Welcome to your notes app!"));
+            recentNotes.add(new Note("Quick Tip", "Tips", getCurrentDate(),
+                    android.R.drawable.ic_dialog_info, "Organize notes by categories."));
         }
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(
+                this, LinearLayoutManager.HORIZONTAL, false);
+        notesRecyclerView.setLayoutManager(layoutManager);
+
+        noteAdapter = new NoteAdapter(recentNotes, note -> {
+            Intent intent = new Intent(this, NotesActivity.class);
+            intent.putExtra("note_title", note.getTitle());
+            intent.putExtra("note_content", note.getContent());
+            startActivity(intent);
+        });
+
+        notesRecyclerView.setAdapter(noteAdapter);
     }
 
     private void showAddTaskDialog() {
@@ -194,50 +163,137 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setHint("Enter task name");
         builder.setView(input);
 
         final String[] priorities = {"Low", "Medium", "High"};
         builder.setSingleChoiceItems(priorities, 1, null);
 
         builder.setPositiveButton("Add", (dialog, which) -> {
-            String taskName = input.getText().toString();
+            String taskName = input.getText().toString().trim();
             if (!taskName.isEmpty()) {
                 int selectedPriority = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
                 String priority = "medium";
                 if (selectedPriority == 0) priority = "low";
                 else if (selectedPriority == 2) priority = "high";
 
-                Task newTask = new Task(taskName, false, priority);
+                Task newTask = new Task(taskName, false, priority, getCurrentDate());
                 taskManager.addTask(newTask);
                 todayTasks.add(newTask);
                 todoAdapter.notifyItemInserted(todayTasks.size() - 1);
-                checkAndMarkStreak();
+                Toast.makeText(this, "Task added", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
     }
+
+    private void setupSeeMoreButtons() {
+        // Tasks "See more"
+        findViewById(R.id.seeMoreTasks).setOnClickListener(v ->
+                startActivity(new Intent(this, TasksActivity.class)));
+
+        // Notes "See more"
+        findViewById(R.id.seeMoreNotes).setOnClickListener(v ->
+                startActivity(new Intent(this, NotesActivity.class)));
+
+        // Streak "See more"
+        findViewById(R.id.seeMoreStreak).setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            intent.putExtra("streakCount", streakCalendarView.getStreakCount());
+            startActivity(intent);
+        });
+        
+        // Events "See more"
+        findViewById(R.id.seeMoreEvents).setOnClickListener(v -> {
+            navigateToEventsActivity();
+        });
+
+        // Upcoming Task Card
+        findViewById(R.id.upcomingTaskCard).setOnClickListener(v ->
+                startActivity(new Intent(this, TasksActivity.class)));
+
+        // Upcoming Event Card
+        findViewById(R.id.upcomingEventCard).setOnClickListener(v -> {
+            navigateToEventsActivity();
+        });
+        
+        // Event Card Navigation
+        findViewById(R.id.eventCardNavigation).setOnClickListener(v -> {
+            navigateToEventsActivity();
+        });
+    }
     
-    private boolean areAllTasksDone() {
-        if (todayTasks.isEmpty()) {
-            return false;
+    // Helper method to navigate to EventsActivity
+    private void navigateToEventsActivity() {
+        try {
+            Intent intent = new Intent(this, EventsActivity.class);
+            startActivity(intent);
+            // Don't call finish() here to allow back navigation
+        } catch (Exception e) {
+            Log.e(TAG, "Error launching EventsActivity", e);
+            Toast.makeText(this, "Events feature coming soon", Toast.LENGTH_SHORT).show();
         }
+    }
 
-        String todayDate = getCurrentDate();
-        boolean hasTodayTasks = false;
-
-        for (Task task : todayTasks) {
-            // Only consider tasks with today's date
-            if (todayDate.equals(task.getDate())) {
-                hasTodayTasks = true;
-                if (!task.isCompleted()) {
-                    return false; // Found an incomplete task for today
+    private void setupTabLayout() {
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int position = tab.getPosition();
+                if (position == 3) { // Events tab
+                    navigateToEventsActivity();
+                    // Reset tab selection to avoid issues when returning
+                    tabLayout.getTabAt(0).select();
+                } else {
+                    updateVisibility(position);
                 }
             }
-        }
 
-        // Return true only if there are tasks for today and all are completed
-        return hasTodayTasks;
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                navigateToTabActivity(tab.getPosition());
+            }
+        });
+    }
+
+    private void updateVisibility(int position) {
+        boolean showTasks = position == 0 || position == 1;
+        boolean showNotes = position == 0 || position == 2;
+        boolean showEvents = position == 0 || position == 3;
+
+        findViewById(R.id.todoRecyclerView).setVisibility(showTasks ? View.VISIBLE : View.GONE);
+        findViewById(R.id.notesRecyclerView).setVisibility(showNotes ? View.VISIBLE : View.GONE);
+        findViewById(R.id.upcomingEventCard).setVisibility(showEvents ? View.VISIBLE : View.GONE);
+        findViewById(R.id.upcomingTaskCard).setVisibility(showTasks ? View.VISIBLE : View.GONE);
+
+        // Show/hide section headers
+        findViewById(R.id.taskSectionHeader).setVisibility(showTasks ? View.VISIBLE : View.GONE);
+        findViewById(R.id.notesSectionHeader).setVisibility(showNotes ? View.VISIBLE : View.GONE);
+        findViewById(R.id.streakSectionHeader).setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+        findViewById(R.id.streakCalendarView).setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+        
+        // If Events tab is selected, navigate to EventsActivity
+        if (position == 3) {
+            navigateToEventsActivity();
+        }
+    }
+
+    private void navigateToTabActivity(int position) {
+        Class<?> targetActivity = null;
+        switch (position) {
+            case 1: targetActivity = TasksActivity.class; break;
+            case 2: targetActivity = NotesActivity.class; break;
+            case 3: targetActivity = EventsActivity.class; break;
+        }
+        if (targetActivity != null) {
+            Intent intent = new Intent(this, targetActivity);
+            startActivity(intent);
+            // Don't call finish() to allow back navigation
+        }
     }
 
     private void checkAndMarkStreak() {
@@ -246,21 +302,32 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
 
         SharedPreferences sharedPreferences = getSharedPreferences("StreakPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        
-        // Only consider a day complete if there are tasks and all are completed
+
         if (allTasksCompleted) {
-            // Store this date as completed in persistent storage
             editor.putBoolean(currentDate, true);
-            Log.d(TAG, "Day marked as complete: " + currentDate);
         } else {
-            // If any task is incomplete, mark the day as incomplete
             editor.putBoolean(currentDate, false);
-            Log.d(TAG, "Day marked as incomplete: " + currentDate);
         }
         editor.apply();
 
-        // Update the streak calendar display
         updateStreakDisplay(sharedPreferences);
+    }
+
+    private boolean areAllTasksDone() {
+        if (todayTasks.isEmpty()) return false;
+
+        String todayDate = getCurrentDate();
+        boolean hasTodayTasks = false;
+
+        for (Task task : todayTasks) {
+            if (todayDate.equals(task.getDate())) {
+                hasTodayTasks = true;
+                if (!task.isCompleted()) {
+                    return false;
+                }
+            }
+        }
+        return hasTodayTasks;
     }
 
     private void updateStreakDisplay(SharedPreferences sharedPreferences) {
@@ -270,184 +337,61 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
         Calendar calendar = Calendar.getInstance();
         int currentMonth = calendar.get(Calendar.MONTH);
         int currentYear = calendar.get(Calendar.YEAR);
-        
-        Log.d(TAG, "Updating streak display for " + currentMonth + "/" + currentYear);
 
-        // Collect all completed days for the current month
         for (Map.Entry<String, ?> entry : allStreaks.entrySet()) {
             try {
-                // Only process boolean values (completion status)
                 if (entry.getValue() instanceof Boolean && (Boolean) entry.getValue()) {
-                    String dateString = entry.getKey();
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    Date date = sdf.parse(dateString);
-                    
+                    Date date = sdf.parse(entry.getKey());
+
                     calendar.setTime(date);
-                    // Only include days from the current month
-                    if (calendar.get(Calendar.MONTH) == currentMonth && 
-                        calendar.get(Calendar.YEAR) == currentYear) {
-                        // Get the day of month (1-31)
-                        int day = calendar.get(Calendar.DAY_OF_MONTH);
-                        completedDays.add(day);
-                        Log.d(TAG, "Found completed day: " + day + " for date " + dateString);
+                    if (calendar.get(Calendar.MONTH) == currentMonth &&
+                            calendar.get(Calendar.YEAR) == currentYear) {
+                        completedDays.add(calendar.get(Calendar.DAY_OF_MONTH));
                     }
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error processing date: " + entry.getKey(), e);
+                Log.e(TAG, "Error processing date", e);
             }
         }
 
         if (streakCalendarView != null) {
-            // Update the streak calendar with completed days
             streakCalendarView.setCompletedDays(completedDays);
-            
-            // Calculate and update the streak count
-            int streakCount = calculateCurrentStreak(sharedPreferences);
-            streakCalendarView.setStreakCount(streakCount);
-            
-            Log.d(TAG, "Streak updated: " + completedDays.size() + " completed days, streak=" + streakCount);
-            
-            // Update today's visual status in streak calendar
+            streakCalendarView.setStreakCount(calculateCurrentStreak(sharedPreferences));
+
             int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
             String currentDate = getCurrentDate();
             boolean isTodayComplete = sharedPreferences.getBoolean(currentDate, false);
-            
-            // Set today's status based on task completion
+
             if (isTodayComplete) {
-                // All tasks for today are completed
                 streakCalendarView.setDayStatus(today, StreakCalendarView.DayStatus.COMPLETED);
-                Log.d(TAG, "Today (day " + today + ") is marked as COMPLETED");
             } else if (!todayTasks.isEmpty()) {
-                // Has tasks but not all completed
                 streakCalendarView.setDayStatus(today, StreakCalendarView.DayStatus.IN_PROGRESS);
-                Log.d(TAG, "Today (day " + today + ") is marked as IN_PROGRESS");
             } else {
-                // No tasks for today
                 streakCalendarView.setDayStatus(today, StreakCalendarView.DayStatus.NOT_STARTED);
-                Log.d(TAG, "Today (day " + today + ") is marked as NOT_STARTED");
             }
-        } else {
-            Log.e(TAG, "Streak calendar view is null");
         }
     }
 
     private int calculateCurrentStreak(SharedPreferences sharedPreferences) {
         int streak = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        
-        // Start with today's date and work backwards
         Calendar calendar = Calendar.getInstance();
-        Date currentDate = calendar.getTime();
-        
-        // Check for consecutive completed days starting from today
-        boolean streakBroken = false;
-        int daysChecked = 0;
-        while (!streakBroken && daysChecked < 366) { // Limit to a year to prevent infinite loop
-            String dateStr = sdf.format(currentDate);
-            boolean isDateComplete = sharedPreferences.getBoolean(dateStr, false);
-            
-            Log.d(TAG, "Checking streak for date: " + dateStr + ", complete: " + isDateComplete);
-            
-            if (isDateComplete) {
-                // This day has all tasks completed
+
+        while (streak < 366) { // Limit to a year
+            String dateStr = sdf.format(calendar.getTime());
+            if (sharedPreferences.getBoolean(dateStr, false)) {
                 streak++;
-                // Move to the previous day
                 calendar.add(Calendar.DAY_OF_MONTH, -1);
-                currentDate = calendar.getTime();
             } else {
-                // Streak is broken - this day is not complete
-                streakBroken = true;
-                Log.d(TAG, "Streak broken at " + dateStr);
+                break;
             }
-            
-            daysChecked++;
         }
-        
-        Log.d(TAG, "Final streak count: " + streak);
         return streak;
     }
 
     private String getCurrentDate() {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Refresh task data
-        if (taskManager != null) {
-            todayTasks = taskManager.getTodayTasks();
-            if (todoAdapter != null) {
-                todoAdapter.notifyDataSetChanged();
-            }
-        }
-        
-        // Refresh notes
-        recentNotes = NotesRepository.getRecentNotes();
-        if (noteAdapter != null) {
-            noteAdapter.notifyDataSetChanged();
-        }
-        
-        checkAndMarkStreak();
-    }
-
-    // Note Adapter for the home screen notes
-    static class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
-        private final List<Note> notes;
-        private final OnNoteClickListener listener;
-
-        interface OnNoteClickListener {
-            void onNoteClick(Note note);
-        }
-
-        NoteAdapter(List<Note> notes, OnNoteClickListener listener) {
-            this.notes = notes;
-            this.listener = listener;
-        }
-
-        @NonNull
-        @Override
-        public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_home_note, parent, false);
-            return new NoteViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
-            Note note = notes.get(position);
-            holder.bind(note);
-            
-            holder.itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onNoteClick(note);
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return notes.size();
-        }
-
-        static class NoteViewHolder extends RecyclerView.ViewHolder {
-            private final TextView titleTextView;
-            private final TextView categoryTextView;
-            private final TextView contentTextView;
-
-            NoteViewHolder(@NonNull View itemView) {
-                super(itemView);
-                titleTextView = itemView.findViewById(R.id.noteTitle);
-                categoryTextView = itemView.findViewById(R.id.noteCategory);
-                contentTextView = itemView.findViewById(R.id.noteContent);
-            }
-
-            void bind(Note note) {
-                titleTextView.setText(note.getTitle());
-                categoryTextView.setText(note.getCategory());
-                contentTextView.setText(note.getContent());
-            }
-        }
     }
 
     // Task Adapter
@@ -487,22 +431,16 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
             private final TextView taskTime;
             private final View priority;
             private final MaterialCheckBox taskCheckbox;
-            private final OnTaskClickListener listener;
 
             public TaskViewHolder(View itemView, OnTaskClickListener listener) {
                 super(itemView);
-                this.listener = listener;
                 taskTitle = itemView.findViewById(R.id.taskTitle);
                 taskTime = itemView.findViewById(R.id.taskTime);
                 priority = itemView.findViewById(R.id.priorityIndicator);
                 taskCheckbox = itemView.findViewById(R.id.taskCheckbox);
 
-                itemView.setOnClickListener(v -> {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        this.listener.onTaskClick(position);
-                    }
-                });
+                itemView.setOnClickListener(v -> listener.onTaskClick(getAdapterPosition()));
+                taskCheckbox.setOnClickListener(v -> listener.onTaskClick(getAdapterPosition()));
             }
 
             void bind(Task task) {
@@ -512,16 +450,63 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
 
                 int priorityColor;
                 switch (task.getPriority().toLowerCase()) {
-                    case "high":
-                        priorityColor = itemView.getContext().getResources().getColor(R.color.priority_high);
-                        break;
-                    case "medium":
-                        priorityColor = itemView.getContext().getResources().getColor(R.color.priority_medium);
-                        break;
-                    default:
-                        priorityColor = itemView.getContext().getResources().getColor(R.color.priority_low);
+                    case "high": priorityColor = Color.RED; break;
+                    case "medium": priorityColor = Color.YELLOW; break;
+                    default: priorityColor = Color.GREEN;
                 }
                 priority.setBackgroundColor(priorityColor);
+            }
+        }
+    }
+
+    // Note Adapter
+    static class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
+        private final List<Note> notes;
+        private final OnNoteClickListener listener;
+
+        interface OnNoteClickListener {
+            void onNoteClick(Note note);
+        }
+
+        NoteAdapter(List<Note> notes, OnNoteClickListener listener) {
+            this.notes = notes;
+            this.listener = listener;
+        }
+
+        @NonNull
+        @Override
+        public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_home_note, parent, false);
+            return new NoteViewHolder(view, listener);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
+            holder.bind(notes.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return notes.size();
+        }
+
+        static class NoteViewHolder extends RecyclerView.ViewHolder {
+            private final TextView titleTextView;
+            private final TextView contentTextView;
+            private final OnNoteClickListener listener;
+
+            NoteViewHolder(@NonNull View itemView, OnNoteClickListener listener) {
+                super(itemView);
+                this.listener = listener;
+                titleTextView = itemView.findViewById(R.id.noteTitle);
+                contentTextView = itemView.findViewById(R.id.noteContent);
+            }
+
+            void bind(Note note) {
+                titleTextView.setText(note.getTitle());
+                contentTextView.setText(note.getContent());
+                itemView.setOnClickListener(v -> listener.onNoteClick(note));
             }
         }
     }

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/surface">
+
+    <!-- Event Title Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Event Title"
+        app:boxStrokeColor="@color/colorAccent"
+        app:hintTextColor="@color/hintColor"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eventTitleInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/hintColor" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Date & Time -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+        
+        <TextView
+            android:id="@+id/eventDateTime"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Select date and time"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/dialog_background" />
+            
+        <Button
+            android:id="@+id/btnSelectDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Select"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/colorAccent" />
+    </LinearLayout>
+    
+    <!-- Duration Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Duration (minutes)"
+        app:boxStrokeColor="@color/colorAccent"
+        app:hintTextColor="@color/hintColor"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eventDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:text="60"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/hintColor" />
+    </com.google.android.material.textfield.TextInputLayout>
+    
+    <!-- Description Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Description"
+        app:boxStrokeColor="@color/colorAccent"
+        app:hintTextColor="@color/hintColor"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eventDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:minLines="2"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/hintColor" />
+    </com.google.android.material.textfield.TextInputLayout>
+    
+    <!-- Participants Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Participants"
+        app:boxStrokeColor="@color/colorAccent"
+        app:hintTextColor="@color/hintColor"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eventParticipants"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/hintColor" />
+    </com.google.android.material.textfield.TextInputLayout>
+    
+    <!-- Platform Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Platform (Google Meet, Zoom, Teams)"
+        app:boxStrokeColor="@color/colorAccent"
+        app:hintTextColor="@color/hintColor"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eventPlatform"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/hintColor" />
+    </com.google.android.material.textfield.TextInputLayout>
+    
+    <!-- Meeting Link Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Meeting Link"
+        app:boxStrokeColor="@color/colorAccent"
+        app:hintTextColor="@color/hintColor"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eventLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textUri"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/hintColor" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout> 

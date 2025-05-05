@@ -67,4 +67,18 @@
         <item name="android:layout_marginBottom">16dp</item>
         <item name="android:background">@color/black</item>
     </style>
+
+    <style name="SpinnerTextWhite" parent="Theme.AppCompat.Light">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="DatePickerStyleWhite" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="android:textColorPrimary">@android:color/white</item>
+    </style>
+    
+    <!-- Tab text appearance -->
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="textAllCaps">false</item>
+    </style>
 </resources>

@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
+    android:textColor="@color/white"
     tools:context=".ProfileActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/customBottomNav"
+        android:layout_above="@id/bottomNavigation"
         android:fillViewport="true">
 
         <LinearLayout
@@ -25,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:text="Your Profile"
-                android:textColor="@color/background"
+                android:textColor="@color/white"
                 android:textSize="24sp" />
 
             <!-- Streak Calendar Title -->
@@ -34,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="Your Streak Calendar"
-                android:textColor="@color/background"
+                android:textColor="@color/white"
                 android:textSize="18sp" />
 
             <!-- Streak Calendar -->
@@ -45,24 +46,39 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Account Settings Header -->
+            <!-- Tasks Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Account Settings"
-                android:textColor="@color/background"
+                android:layout_marginBottom="8dp"
+                android:text="Your Tasks"
+                android:textColor="@color/white"
                 android:textSize="18sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/taskRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:scrollbars="vertical"/>
+
+            <!-- Account Settings Header -->
+
 
             <!-- Add more profile elements as needed -->
         </LinearLayout>
     </ScrollView>
 
     <!-- Bottom Navigation -->
-    <com.example.undec.BottomNavView
-        android:id="@+id/customBottomNav"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/black"/>
+        android:background="@color/surface"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:menu="@menu/nav_menu" />
 </RelativeLayout>

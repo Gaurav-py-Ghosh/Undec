@@ -7,13 +7,16 @@
     android:padding="20dp"
     android:background="@color/surface">
 
+    <!-- Task Title Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="Task Title"
         app:boxStrokeColor="@color/colorAccent"
-        app:hintTextColor="@color/colorAccent"
+        app:hintTextColor="@color/hintColor"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -22,44 +25,48 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             android:maxLines="1"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary" />
-
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/hintColor" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Priority Dropdown -->
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="Priority"
         app:boxStrokeColor="@color/colorAccent"
-        app:hintTextColor="@color/colorAccent"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        app:hintTextColor="@color/hintColor"
+        app:endIconMode="dropdown_menu"
+        app:endIconTint="@color/colorAccent"
+        app:boxBackgroundColor="@android:color/transparent">
 
-        <Spinner
+        <AutoCompleteTextView
             android:id="@+id/prioritySpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:background="@null" />
-
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/hintColor"
+            android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Due Date Label -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Due Date"
-        android:textColor="@color/text_primary"
+        android:textColor="@android:color/white"
         android:textSize="16sp"
         android:fontFamily="sans-serif-medium"
         android:layout_marginBottom="8dp" />
 
+    <!-- Keep DatePicker unchanged -->
     <DatePicker
         android:id="@+id/datePicker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:calendarViewShown="false"
-        android:datePickerMode="spinner"
-        android:theme="@style/DatePickerStyle" />
-
-</LinearLayout> 
+        android:datePickerMode="spinner" />
+</LinearLayout>

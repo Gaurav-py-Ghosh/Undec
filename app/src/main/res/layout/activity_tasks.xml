@@ -64,16 +64,29 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:layout_marginBottom="84dp"
         android:contentDescription="Add Task"
         app:backgroundTint="@color/colorAccent"
         app:tint="@color/background"
         app:srcCompat="@drawable/ic_add" />
 
-    <com.example.undec.BottomNavView
-        android:id="@+id/customBottomNav"
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/surface" />
+        android:background="@color/surface"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:menu="@menu/nav_menu" />
+
+<!--    <com.example.undec.BottomNavView-->
+<!--        android:id="@+id/customBottomNav"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:background="@color/surface" />-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
