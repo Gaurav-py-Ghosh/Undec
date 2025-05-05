@@ -185,22 +185,48 @@ public class TasksActivity extends BaseActivity {
 
     private void updateStreakCalendar() {
         try {
-            // Get today's day of month
+            // Get completed days from StreakManager
+            List<Integer> completedDays = streakManager.getCurrentMonthCompletedDays();
+            
+            // Set completed days in calendar view
+            calendarView.setCompletedDays(completedDays);
+            
+            // Get and set the current streak count
+            int currentStreak = streakManager.getCurrentStreak();
+            calendarView.setStreakCount(currentStreak);
+            
+            // Set today's status
             Calendar cal = Calendar.getInstance();
             int today = cal.get(Calendar.DAY_OF_MONTH);
-
-            // Create test data - replace with your actual streak data
-            List<Integer> completedDays = new ArrayList<>();
-            completedDays.add(today - 1); // Yesterday
-            completedDays.add(today - 2); // Day before
-
-            calendarView.setCompletedDays(completedDays);
-            calendarView.setStreakCount(completedDays.size());
-
-            Log.d(TAG, "Streak calendar updated with " + completedDays.size() + " completed days");
+            
+            // Check if today is completed
+            boolean isTodayCompleted = streakManager.getCompletedDates().contains(currentDate);
+            
+            if (isTodayCompleted) {
+                // Today is fully completed
+                calendarView.setDayStatus(today, StreakCalendarView.DayStatus.COMPLETED);
+            } else if (hasAnyCompletedTasksToday()) {
+                // Some tasks are done but not all
+                calendarView.setDayStatus(today, StreakCalendarView.DayStatus.IN_PROGRESS);
+            } else {
+                // No tasks completed today
+                calendarView.setDayStatus(today, StreakCalendarView.DayStatus.NOT_STARTED);
+            }
+            
+            Log.d(TAG, "Streak calendar updated with " + completedDays.size() + 
+                  " completed days, current streak: " + currentStreak);
         } catch (Exception e) {
             Log.e(TAG, "Error updating streak calendar: " + e.getMessage(), e);
         }
+    }
+
+    private boolean hasAnyCompletedTasksToday() {
+        for (Task task : tasks) {
+            if (task.getDate().equals(currentDate) && task.isCompleted()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void updateTaskCompletion(Task task, boolean isCompleted) {
@@ -210,10 +236,32 @@ public class TasksActivity extends BaseActivity {
         if (areAllTasksForTodayCompleted()) {
             // Mark today as complete in streak
             streakManager.markDateComplete(currentDate);
+            
+            // Get today's day of month
+            Calendar cal = Calendar.getInstance();
+            int today = cal.get(Calendar.DAY_OF_MONTH);
+            
+            // Update the day status in the calendar view
+            calendarView.setDayStatus(today, StreakCalendarView.DayStatus.COMPLETED);
+            
             showMessage("🔥 All tasks completed for today!");
+            
+            // Update streak count in calendar
+            calendarView.setStreakCount(streakManager.getCurrentStreak());
         } else {
             // Mark today as incomplete in streak
             streakManager.markDateIncomplete(currentDate);
+            
+            // Get today's day of month
+            Calendar cal = Calendar.getInstance();
+            int today = cal.get(Calendar.DAY_OF_MONTH);
+            
+            // Check if at least one task is completed
+            if (hasAnyCompletedTasksToday()) {
+                calendarView.setDayStatus(today, StreakCalendarView.DayStatus.IN_PROGRESS);
+            } else {
+                calendarView.setDayStatus(today, StreakCalendarView.DayStatus.NOT_STARTED);
+            }
         }
         
         // Update the streak calendar

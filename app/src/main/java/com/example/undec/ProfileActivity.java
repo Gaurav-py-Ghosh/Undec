@@ -60,10 +60,10 @@ public class ProfileActivity extends BaseActivity {
         btnUpdate = findViewById(R.id.btnUpdate);
 
         // Set sample data (replace with your actual data)
-        tvName.setText("John Appleseed");
-        tvEmail.setText("Gyllinhall@baims.com");
+        tvName.setText("gaurav ghosh");
+        tvEmail.setText("gaurav@baims.com");
         tvPhone.setText("+966 9861 22 12");
-        tvBio.setText("This is a bio of John Appleseed, the best Physics professor of all time.");
+        tvBio.setText("This is a bio of gaurav, the best Physics professor of all time.");
         tvCharCount.setText(tvBio.getText().length() + " / 150 characters");
 
         // Set click listener for update button
